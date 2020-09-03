@@ -1,0 +1,55 @@
+
+<% form_for :@online do |f| %>
+<div class="label-field-pair">
+  <%= f.check_box :is_online%>
+  <label for="is_online" ><%= t('online_class') %></label>
+</div>
+
+<div  hidden class="label-field-pair online_class   ">
+  <label for="title"><%= t('meeting_link') %>:</label>
+  <div class="text-input-bg" id="online_link">
+    <%= f.text_field :meeting_link, {:placeholder => 'Please include http://'} %>
+  </div>
+  <label style="color: darkred" id='link_error'  >Please enter a valid Meeting Link!</label>
+</div>
+
+<div  hidden class="label-field-pair online_class " style="padding-top: 20px;">
+  <label for="title"><%= t('meeting_id') %>:</label>
+  <div class="text-input-bg" id="meeting_id">
+    <%= f.text_field :meeting_id, { :placeholder => 'Enter Meeting ID' }  %>
+  <br></div>
+</div>
+
+<div hidden class="label-field-pair online_class  ">
+  <label for="title"><%= t('pass_code') %>:</label>
+  <div class="text-input-bg" id="pass_code">
+    <%= f.text_field :meeting_passcode, {:placeholder => 'Enter Passcode'} %>
+  </div>
+</div>
+
+  <div hidden class="label-field-pair online_class  ">
+    <label for="title"><%= t('google_class_code') %>:</label>
+    <div class="text-input-bg" id="gclass_code">
+      <%= f.text_field :gclass_code, {:placeholder => 'Enter Passcode'} %>
+    </div>
+  </div>
+
+<% end %>
+
+
+<script>
+
+    j(document).on('change', "input[id='_online_is_online']:checkbox", function () {
+        if (j("input[id='_online_is_online']").is(':checked')) {
+            j(".online_class").show();
+
+        } else if (j("input[id='_online_is_online']").prop("checked") === false)  {
+            j(".online_class").hide();
+        }
+    });
+
+    if (j("input[id='_online_is_online']").is(':checked')) {
+        j(".online_class").show();
+    }
+
+</script>

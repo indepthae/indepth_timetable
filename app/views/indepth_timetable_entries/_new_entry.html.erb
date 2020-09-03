@@ -1,0 +1,282 @@
+<%- # Fedena
+#Copyright 2010 Foradian Technologies Private Limited
+#
+#This product includes software developed at
+
+#Project Fedena - http://www.projectfedena.org/
+#
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing,
+#software distributed under the License is distributed on an
+#"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#KIND, either express or implied.  See the License for the
+#specific language governing permissions and limitations
+#under the License.  -%>
+<script type="text/javascript">
+  dir = "<%= (rtl?) ? 'rtl' : 'ltr' %>"
+  if (dir == 'rtl') {
+    len = $('table').offsetWidth - $('table-viewer').offsetWidth;
+  }
+  else {
+    len = 0
+  }
+  (function(j) {
+    j.fn.hasScrollBar = function() {
+      return this.get(0).scrollWidth > this.width();
+    }
+  })(jQuery);
+
+  if(j('#table-viewer').hasScrollBar()){
+    var height=120+(j('#table-viewer').height()-j('.employee_list').height());
+    j('.employee_list table tr:last-child').css('height',height);
+  }
+</script>
+<% unless flash[:warn_notice].nil? %>
+  <div id="errorExplanation" class="errorExplanation"><%= flash[:warn_notice] %></div>
+  <div class="extender"></div>
+<% end %>
+<div id="tt_over">
+  <% #@required_hours = @subjects.map(&:max_weekly_classes).sum %>
+  <% @required_hours = (@subjects.present? ? @subjects.map(&:max_weekly_classes).sum : 0)%>
+  <% elective_sub_hours = @elective_groups.map {|x| x.subjects.reject{|subject| subject.is_deleted }.map(&:max_weekly_classes) if x.subjects.present? }.compact %>
+  <% @required_hours += (elective_sub_hours.present? ? elective_sub_hours.map(&:min).sum : 0) %>
+  <% if @required_hours < @tte_total %>
+    <div class="over_allocation">
+      <%= t('over_allocation',:diff => (@tte_total - @required_hours)) %>
+    </div>
+  <% end %>
+  <div class="info_text"><%=t('select_slots_to_continue')%></div>
+  <%unless @weekday.blank?%>
+    <div id="timetable">
+      <div class="ovr_sec"></div>
+      <div id="box">
+        <div class="employee_list">
+          <table border="0" align="center" id="table-days" cellspacing="0">
+            <%- @weekday.each do |weekday| -%>
+              <tr>
+                <td class="td1">
+                  <div class="name vertical"><%= WeekdaySet.shortened_weekday_name(weekday) -%></div>
+                </td>
+              </tr>
+            <% end %>
+          </table>
+        </div>
+        <div id="table-viewer">
+          <table border="0" align="center" id="table" cellspacing="0">
+
+            <% @weekday.each do |week| %>
+              <%class_timings=@class_timing_sets.find_by_weekday_id(week).class_timing_set.class_timings.timetable_timings%>
+              <%if class_timings.present?%>
+                <tr>
+                  <%class_timings.each do |ct|%>
+                    <% @tte = @timetable[week][ct.id] %>
+                    <% unless @tte=={} %>
+                      <% timetable_swaps= @tte.timetable_swaps%>
+                      <% subjects = @tte.assigned_subjects %>
+                      <% subject_leaves= subjects.collect{|x| x.subject_leaves}.flatten.select{|leave| leave.month_date>= @tt.start_date && leave.month_date<=@tt.end_date && leave.class_timing_id==@tte.class_timing_id}%>
+                      <% classroom_allocations=@tte.allocated_classrooms %>
+                    <% end %>
+
+                    <% if timetable_swaps.present? or subject_leaves.present? or classroom_allocations.present?%>
+                      <% @confirm_msg=t("remove_entry_dependency_confirm") %>
+                      <td class="td">
+                        <div id="drop_<%= "#{week}_#{ct.id}" %>" class="drop" onClick="update_selected_divs('<%= "#{week}_#{ct.id}" %>');">
+                          <div class="tt-subject">
+                            <%= render :partial=>"indepth_timetable_entries/timetable_slab",:locals =>{ :ct =>ct,:week=>week } %>
+                          </div>
+                        </div>
+                      </td>
+                    <% else %>
+                      <% @confirm_msg=t("remove_entry_confirm") %>
+                      <td class="td">
+                        <div id="drop_<%= "#{week}_#{ct.id}" %>" class="drop" onClick="update_selected_divs('<%= "#{week}_#{ct.id}" %>');">
+                          <div class="tt-subject">
+                            <%= render :partial=>"indepth_timetable_entries/timetable_slab",:locals=>{:ct=>ct,:week=>week} %>
+                          </div>
+                        </div>
+
+                        <%= drop_receiving_element("drop_#{week}_#{ct.id}",
+                          :accept => "employees_subject",
+                          :onDrop => "function(draggable_element, droppable_element) { $(droppable_element).highlight(); make_ajax_calls('#{week}_#{ct.id}', draggable_element.id.split('_').reverse().splice(0,draggable_element.id.split('_').length-2)); }") -%>
+                      </td>
+                    <% end %>
+                  <% end %>
+                </tr>
+              <%else%>
+                <tr><td class="td"></td></tr>
+              <%end%>
+            <% end %>
+          </table>
+        </div>
+      </div>
+      <div class="extender"></div>
+
+      <div id="subjects-select">
+        <h4><%= t('select_subject') %> <%=t('and_add_text')%> <%= t('employee_text').downcase %></h4>
+        <div class="label-field-pair">
+          <div class="text-input-bg">
+            <% ele_subjects = [] %>
+            <% @ele_subjects.each_pair do |elective, subjs| %>
+              <% subj_first =  subjs.first if subjs.present? %>
+              <% subj_first.name =  elective.name if subj_first.present? %>
+              <% ele_subjects << subj_first if subj_first.present? %>
+            <% end %>
+            <% subjects= @subjects + ele_subjects %>
+            <%= select :timetable_entries, :subject_id, subjects.map { |s| [s.name, s.id] },
+              {:prompt => "#{t('select_subject')}"},
+              {:onChange => "#{remote_function(:url => {:action => "update_employees"},
+              :with => "'subject_id='+value",
+              :update => "employee-list",
+              :before => "Element.show('loader3')",
+              :success => "Element.hide('loader3')")}"} %>
+            <%= image_tag("loader.gif",:align => "absmiddle",:border => 0,:id => "loader3", :style =>"display: none;" ) %>
+          </div>
+        </div>
+        <div id="employee-list"></div>
+      </div>
+
+      <div id="subjects-list">
+        <%= render :partial => 'subject_list' %>
+      </div>
+    </div>
+
+  <%else%>
+    <p class="flash-msg"><%=t('no_eligible_weekdays_present')%></p>
+  <%end%>
+</div>
+<% unless @validation_problems.blank? %>
+  <script type="text/javascript">
+    var height=j('#table-viewer').height()+1;
+    j('.ovr_sec').css('display','block').height(height);
+    if(j('#errors').children().length > 2){
+      j('#errors').removeClass('small_errors_div').addClass('big_errors_div').height(height);
+      j('.big_errors_div').css('top',(j('#box').position().top+10)+'px');
+      j('.big_errors_div').css('left',(j('#box').position().left+10)+'px');
+      j('#errors').append("<div class='div_1'></div>");
+      j('#errors').append("<div class='div_2'></div>");
+      var i=1;
+      j('.error-explanation').each(function(){
+        j('.div_'+i).append(this);
+        i=i+1;
+        if(i==3){
+          i=1;
+        }
+      });
+    }
+    j('#errors').css('display','block');
+    var count=0;
+    var clicked_ids=new Array();
+    var errors_count=j('.error-explanation').length;
+    j('.error-explanation a').click(function()
+    {
+      var clicked=0;
+
+      if(j.inArray(j(this).parents('.error-explanation').attr('id'), clicked_ids)!==-1)
+      {
+        clicked=1;
+      }
+      if(clicked==0)
+      {
+        clicked_ids.push(j(this).parents('.error-explanation').attr('id'));
+        count=count+1;
+      }
+      if (count==errors_count){
+        j(function() {
+          setTimeout(function() {
+            j("#overlay_area").hide('fade', {}, 500)
+            j('#overlay_area').remove();
+          }, 1000);
+
+          setTimeout(function() {
+            j(".ovr_sec").hide('fade', {}, 500)
+          }, 1000);
+
+
+        });
+      }
+
+    });
+    j('#cancel_all').click(function(){
+
+      j(function() {
+        setTimeout(function() {
+          j("#overlay_area").hide('fade', {}, 500)
+        }, 10);
+        j('#overlay_area').remove();
+        setTimeout(function() {
+          j(".ovr_sec").hide('fade', {}, 500)
+        }, 10);
+      });
+    });
+    
+
+  </script>
+  <div id="overlay_area">
+    <div id="errors" class="test small_errors_div">
+      <div class="warning_text"><div class="warning_img"></div><span><%=t('warning')%> : <%=t('allocate_errors_title',:error_total => @validation_problems.count)%></span><%if @validation_problems.count>1%><span id="cancel_all"><%=t('cancel_all_text')%></span><%end%></div>
+      <% @validation_problems.each do |tte_id, errors| %>
+        <% co_ordinate=tte_id.split("_") %>
+        <% weekday=co_ordinate[0].to_i %>
+        <% class_timing=co_ordinate[1].to_i %>
+        <% subject=Subject.find errors["info"]["sub_id"] %>
+        <div id="error_div_<%= tte_id %>" class="error-explanation">
+          <div id="problem_ct"><%="#{WeekdaySet.default_weekdays[weekday.to_s].capitalize}, #{format_date(ClassTiming.find(class_timing).start_time,:format=>:time)}-#{format_date(ClassTiming.find(class_timing).end_time,:format=>:time)}"%><div class="loader-image">
+              <%= image_tag("loader.gif",:align => "absmiddle",:border => 0,:id => "loader_#{tte_id}", :style =>"display: none;" ) %>
+            </div></div>
+
+          <div class="problems">
+            <ul>
+              <%- errors["messages"].each do |err| -%>
+                <li><%= err -%></li>
+              <%- end -%>
+            </ul>
+          </div>
+
+
+          <div id="test links">
+            <% unless @overlap.nil? %>
+              <%= link_to_remote "#{t('allocate_and_remove')}", :url => {:action => "tt_entry_update2"},:html=>{:class=>'buttons_black'},
+                                 :with => "'is_online=#{@is_online}' +'&meeting_link=#{@meeting_link}' + '&meeting_id=#{@meeting_id}' + '&meeting_passcode=#{@meeting_passcode}' + '&gclass_code=#{@gclass_code}' + '&sub_id=#{errors["info"]["sub_id"]}' + '&week_day=#{weekday}' + '&class_timing=#{class_timing}' + '&tte_id=#{errors["info"]["tte_id"]}' + '&emp_id=#{errors["info"]["emp_id"]}' + '&timetable_id=#{@tt.id}' + '&batch_id=#{@batch.id}&overwrite=1' + '&session_fingerprint=' + '#{session_fingerprint(true)}'",
+                                 :before => "Element.show('loader_#{tte_id}')",
+                                 :success => "Element.hide('loader_#{"tte_id"}')" -%>
+              <%= link_to_remote "#{t('allocate_and_retain')}", :url => {:action => "tt_entry_update2"},:html=>{:class=>'buttons_white'},
+                                 :with => "'is_online=#{@is_online}' +'&meeting_link=#{@meeting_link}' + '&meeting_id=#{@meeting_id}' + '&meeting_passcode=#{@meeting_passcode}'  + '&gclass_code=#{@gclass_code}'  + '&sub_id=#{errors["info"]["sub_id"]}' + '&week_day=#{weekday}' + '&class_timing=#{class_timing}' + '&tte_id=#{errors["info"]["tte_id"]}' + '&emp_id=#{errors["info"]["emp_id"]}' + '&timetable_id=#{@tt.id}' + '&batch_id=#{@batch.id}' + '&session_fingerprint=' + '#{session_fingerprint(true)}'",
+                                 :before => "Element.show('loader_#{tte_id}')",
+                                 :success => "Element.hide('loader_#{tte_id}')" -%>
+            <% else %>
+              <%= link_to_remote "#{t('continue')}", :url => {:action => "tt_entry_update2"},:html=>{:class=>'buttons_black'},
+                                 :with => "'is_online=#{@is_online}' +'&meeting_link=#{@meeting_link}' + '&meeting_id=#{@meeting_id}' + '&meeting_passcode=#{@meeting_passcode}'  + '&gclass_code=#{@gclass_code}' + '&sub_id=#{errors["info"]["sub_id"]}'  + '&week_day=#{weekday}' + '&class_timing=#{class_timing}'  + '&tte_id=#{errors["info"]["tte_id"]}' + '&emp_id=#{errors["info"]["emp_id"]}' + '&timetable_id=#{@tt.id}' + '&batch_id=#{@batch.id}'+'&session_fingerprint=' + '#{session_fingerprint(true)}'",
+                                 :before => "Element.show('loader_#{tte_id}')",
+                                 :success => "Element.hide('loader_#{tte_id}')" -%>
+
+            <% end %>
+            <%= link_to_remote "#{t('cancel')}", :url => {:action => "tt_entry_noupdate2"},:html=>{:class=>'buttons_white'},
+                               :before => "Element.show('loader_#{tte_id}')",
+                               :success => "Element.hide('loader_#{tte_id}')",
+                               :complete => "remove_entry()",
+                               :with => "'is_online=#{@is_online}' +'&meeting_link=#{@meeting_link}' + '&meeting_id=#{@meeting_id}' + '&meeting_passcode=#{@meeting_passcode}'  + '&gclass_code=#{@gclass_code}'  + 'emp_id=#{errors["info"]["emp_id"]}'  + '&week_day=#{weekday}' + '&class_timing=#{class_timing}'  + '&sub_id=#{errors["info"]["sub_id"]}' + '&tte_id=#{errors["info"]["tte_id"]}'+ '&timetable_id=#{@tt.id}' + '&session_fingerprint=' + '#{session_fingerprint(true)}'"
+            -%>
+          </div>
+
+        </div>
+      <%- end -%>
+    </div>
+  </div>
+<%- end -%>
+<%=hidden_field_tag :session_fingerprint, session_fingerprint()%>
+
+<script type="text/javascript">
+  if (j('.td1').length == 1){
+    j('.td1').addClass('border_bottom').addClass('long');
+  }
+  
+  if(j('#errors').length > 0){
+    var height=j('#table-viewer').height()+1;
+    j('.ovr_sec').css('display','block').css('height',height+'px').css('top',j('#errors').offset().top+'px');
+  }
+</script>

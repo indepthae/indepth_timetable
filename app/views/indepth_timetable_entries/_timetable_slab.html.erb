@@ -1,0 +1,113 @@
+<% if @tte.is_a? TimetableEntry %>
+  <div class="select_check_box">
+    <%= check_box_tag "accept_#{week}_#{ct.id}", nil, nil %>
+  </div>
+  <div class="class_timings">
+    <span><%= "#{format_date(ct.start_time, :format => :time)} - #{format_date(ct.end_time, :format => :time)}" %></span>
+    <div class="cross_section inactive_div"><%= link_to_remote "<div class='cross_symbol'></div>",
+                                                               :url => {:action => "delete_employee2", :id => @tte.id},
+                                                               :complete => "clear_selected_divs();",
+                                                               :confirm => @confirm_msg,
+                                                               :before => "Element.show('loader')",
+                                                               :success => "Element.hide('loader')" %>
+    </div>
+  </div>
+  <div class="subject1">
+    <% unless @tte.entry.nil? %>
+      <span class="sub-line"> <%= shorten_string(@tte.assigned_name.to_s, 30) %></span>
+    <% end %>
+  </div>
+  <div class="employee">
+    <% unless @tte.entry.nil? %>
+      <% if @tte.entry.kind_of? ElectiveGroup %>
+        <span class="elective_text"><%= t('elective') %></span>
+        <span class="fright"><%= @tte.entry.subjects.active.count %></span>
+      <% else %>
+        <% tte_employees = @tte.employees %>
+        <% if tte_employees.present? %>
+          By <%= timetable_entry_employee_names(tte_employees).first %>
+        <% else %>
+          <%= t('no_teacher') %>
+        <% end %>
+      <% end %>
+    <% end %>
+
+  </div>
+
+  <div class="online">
+    <% if @tte.is_online? %>
+      <% if @tte.meeting_id.present? %>
+        <label class="emp-line" style="margin-top: 3px">ID: <%= @tte.meeting_id %></label><br>
+      <% end %>
+      <% if @tte.meeting_passcode.present? %>
+        <label class="emp-line" style="margin-top: 3px">Pass:<%= @tte.meeting_passcode %></label><br>
+      <% end %>
+      <% if @tte.gclass_code.present? %>
+        <label class="emp-line" style="margin-top: 3px">Class code:<%= @tte.gclass_code %></label><br>
+      <% end %>
+      <% if @tte.meeting_link.present? %>
+        <button style="min-width:150px; margin-top: 3px; margin-left: 15px;;background-color: forestgreen; color: whitesmoke; cursor: pointer; border-radius: 12px; " onclick="window.open('<%= @tte.meeting_link%>','_blank')">
+          <b>Join Meeting</b></button>
+      <% end %>
+    <% end %>
+  </div>
+
+
+  <div class="class_timing_tooltip" style="display:none">
+    <span class="classtiming"><%= "#{format_date(ct.start_time, :format => :time)} - #{format_date(ct.end_time, :format => :time)}" %></span>
+    <div class="subject1">
+      <% unless @tte.entry.nil? %>
+        <% if @tte.entry.kind_of? ElectiveGroup %>
+          <% @tte.assigned_subjects.each do |es| %>
+            <div class="block">
+              <div class="sub-line"> <%= "#{es.name.to_s} &#x200E;(#{es.code.to_s})&#x200E;" %></div>
+              <% if es.employees.present? %>
+                <% es.employees.each do |e| %>
+                  <div class="emp-line"><%= "#{e.full_name} &#x200E;(#{e.employee_number})&#x200E;" %></div>
+                <% end %>
+              <% else %>
+                <div class="emp-line"><%= t('no_teacher') %></div>
+              <% end %>
+            </div>
+          <% end %>
+        <% else %>
+          <% tte_employees = @tte.employees %>
+          <div class="sub-line"><%= "#{@tte.assigned_name.to_s} &#x200E;(#{@tte.entry.code.to_s})&#x200E;" %></div>
+          <% if tte_employees.present? %>
+            <% tte_employees.each do |tte_employee| %>
+              <div class="emp-line">By <%= "#{tte_employee.full_name} &#x200E;(#{tte_employee.employee_number})&#x200E;" %></div>
+            <% end %>
+          <% else %>
+            <div class="emp-line"><%= t('no_teacher') %></div>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+    <div class="online">
+      <% if @tte.is_online? %>
+        <% if @tte.meeting_id.present? %>
+          <label class="emp-line" style="margin-top: 3px">ID: <%= @tte.meeting_id %></label><br>
+        <% end %>
+        <% if @tte.meeting_passcode.present? %>
+          <label class="emp-line" style="margin-top: 3px">Pass:<%= @tte.meeting_passcode %></label><br>
+        <% end %>
+        <% if @tte.gclass_code.present? %>
+          <label class="emp-line" style="margin-top: 3px">Class code:<%= @tte.gclass_code %></label><br>
+        <% end %>
+        <% if @tte.meeting_link.present? %>
+          <button style="min-width:150px; margin-top: 3px; margin-left: 15px;;background-color: forestgreen; color: whitesmoke; cursor: pointer; border-radius: 12px; " onclick="window.open('<%= @tte.meeting_link%>','_blank')">
+            <b>Join Meeting</b></button>
+        <% end %>
+      <% end %>
+    </div>
+
+  </div>
+
+<% else %>
+  <div class="select_check_box">
+    <%= check_box_tag "accept_#{week}_#{ct.id}", nil, nil %>
+  </div>
+  <span id="blank_timings"><%= "#{format_date(ct.start_time, :format => :time)} - #{format_date(ct.end_time, :format => :time)}" %></span>
+  <div class="subject1"></div>
+  <div class="employee"></div>
+<% end %>

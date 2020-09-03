@@ -1,0 +1,69 @@
+<script type="text/javascript">
+  (function(j) {
+    j.fn.hasScrollBar = function() {
+      return this.get(0).scrollWidth > this.width();
+    }
+  })(jQuery);
+
+  if(j('#table-viewer').hasScrollBar()){
+    var height=120+(j('#table-viewer').height()-j('.employee_list').height());
+    j('.employee_list table tr:last-child').css('height',height);
+  }
+</script>
+<div class="employee_list">
+  <table border="0" align="center" id="table-days" cellspacing="0">
+    <%- @weekday.sort.each do |weekday| -%>
+      <tr>
+        <td class="td1">
+          <div class="name vertical"><%= WeekdaySet.shortened_weekday_name(weekday) -%></div>
+        </td>
+      </tr>
+    <% end %>
+  </table>
+</div>
+<div id="table-viewer">
+  <table border="0" align="center" id="table" cellspacing="0">
+
+    <% @weekday.sort.each do |week| %>
+      <%@class_timings=@class_timing_sets.find_by_weekday_id(week).class_timing_set.class_timings.timetable_timings%>
+      <%if @class_timings.present?%>
+        <tr>
+          <%@class_timings.each do |ct|%>
+            <% @tte = @timetable[week][ct.id] %>
+            <% unless @tte=={} %>
+              <% timetable_swaps= @tte.timetable_swaps%>
+
+              <% subject_leaves=@tte.assigned_subjects.map{ |sub| sub.subject_leaves.select{|leave| leave.month_date>= @tt.start_date && leave.month_date<=@tt.end_date && leave.class_timing_id==@tte.class_timing_id} }.flatten.uniq%>
+              <% classroom_allocations=@tte.allocated_classrooms %>
+            <% end %>
+            <% if timetable_swaps.present? or subject_leaves.present? or classroom_allocations.present?%>
+              <% @confirm_msg=t("remove_entry_dependency_confirm") %>
+              <td class="td">
+                <div id="drop_<%= "#{week}_#{ct.id}" %>" class="drop" onClick="update_selected_divs('<%= "#{week}_#{ct.id}" %>');">
+                  <div class="tt-subject">
+                    <%= render :partial=>"indepth_timetable_entries/timetable_slab",:locals =>{ :ct =>ct,:week=>week } %>
+                  </div>
+                </div>
+              </td>
+            <% else %>
+              <% @confirm_msg=t("remove_entry_confirm") %>
+              <td class="td">
+                <div id="drop_<%= "#{week}_#{ct.id}" %>" class="drop" onClick="update_selected_divs('<%= "#{week}_#{ct.id}" %>');">
+                  <div class="tt-subject">
+                    <%= render :partial=>"indepth_timetable_entries/timetable_slab",:locals=>{:ct=>ct,:week=>week} %>
+                  </div>
+                </div>
+
+                <%= drop_receiving_element("drop_#{week}_#{ct.id}",
+                  :accept => "employees_subject",
+                  :onDrop => "function(draggable_element, droppable_element) { $(droppable_element).highlight(); make_ajax_calls('#{week}_#{ct.id}', draggable_element.id.split('_').reverse().splice(0,draggable_element.id.split('_').length-2)); }") -%>
+              </td>
+            <% end %>
+          <% end %>
+        </tr>
+      <%else%>
+        <tr><td class="td"></td></tr>
+      <%end%>
+    <% end %>
+  </table>
+</div>

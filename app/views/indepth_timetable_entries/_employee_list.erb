@@ -1,0 +1,66 @@
+
+<% unless @employees_subject.empty? %>
+  <% unless @employees_subject[0].subject.elective_group_id.nil? %>
+    <% @employees_subject[0].employee.first_name = @employees_subject[0].subject.elective_group.name + " Employees" %>
+    <% emp_sub_ids = @employees_subject.collect(&:id) %>
+    <% emp_sub_ids = emp_sub_ids.join("_") %>
+    <div id="employees">
+      <div class="information_text"><span><%= t('drag_drop_info') %></span></div>
+      <div class="employees_subject" id="emp_sub_<%= emp_sub_ids %>" title="<%= @employees_subject[0].employee.first_name.to_s if @employees_subject[0].employee.present? %>">
+        <div class="tick_plus selectable"></div>
+        <div class="employee_name"><%= shorten_string(@employees_subject[0].employee.first_name.to_s, 100) if @employees_subject[0].employee.present? %></div>
+      </div>
+      <%= draggable_element("emp_sub_#{emp_sub_ids}", :revert => true) %>
+    </div>
+  <% else %>
+    <div id="employees">
+      <div class="information_text"><span><%= t('drag_drop_info') %></span></div>
+      <% @employees_subject.each do |e| %>
+        <div class="employees_subject" id="emp_sub_<%= e.id %>" title="<%= e.employee.first_name if e.employee.present? %>">
+          <div class="tick_plus selectable"></div>
+          <div class="employee_name"><%= shorten_string(e.employee.first_name, 100) if e.employee.present? %></div>
+        </div>
+        <%= draggable_element("emp_sub_#{e.id}", :revert => true) %>
+      <% end %>
+    </div>
+  <% end %>
+  <div id="employees" style="padding-top: 15px">
+    <%= render :partial => 'indepth_timetable_entries/online_class' %>
+  </div>
+
+  <div class="assign_button"><%= t('assign_text') %></div>
+<% else %>
+  <h5><%= t('no_teacher_associated') %></h5>
+<% end %>
+
+<script type="text/javascript">
+    j('.employees_subject').each(function (a, b) {
+        h = j(b).find('.employee_name').height();
+        j(b).find('.tick_plus').css('top', (h - 13) / 2);
+    });
+    j('.employees_subject').each(function () {
+        j(this).click(function () {
+            if (j(this).children('.tick_plus').hasClass('selectable')) {
+                j(this).children().first().removeClass('selectable').addClass('selected');
+            } else {
+                j(this).find('.tick_plus').removeClass('selected').addClass('selectable');
+            }
+
+        });
+    });
+
+    j('.assign_button').click(function () {
+        if (selected_divs.length == 0) {
+            alert('<%=t('select_atleast_one_time_slot')%>');
+            return false;
+        } else {
+            make_other_ajax_calls(
+                //j('.selected').parent().attr('id').split('_').reverse().splice(0,j('.selected').parent().attr('id').split('_').length-2)
+                j('.selected').parent().map(function () {
+                    return this.id.split('_').reverse().splice(0, j('.selected').parent().attr('id').split('_').length - 2);
+                }).toArray().join(',')
+            );
+        }
+    });
+
+</script>
