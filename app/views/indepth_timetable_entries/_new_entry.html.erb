@@ -239,6 +239,7 @@
 
 
           <div id="test links">
+           <% @meeting_link.present? ? @meeting_link.sub!('?','@@') : '' %>
             <% unless @overlap.nil? %>
               <%= link_to_remote "#{t('allocate_and_remove')}", :url => {:action => "tt_entry_update2"},:html=>{:class=>'buttons_black'},
                                  :with => "'is_online=#{@is_online}' +'&meeting_link=#{@meeting_link}' + '&meeting_id=#{@meeting_id}' + '&meeting_passcode=#{@meeting_passcode}' + '&gclass_code=#{@gclass_code}' + '&sub_id=#{errors["info"]["sub_id"]}' + '&week_day=#{weekday}' + '&class_timing=#{class_timing}' + '&tte_id=#{errors["info"]["tte_id"]}' + '&emp_id=#{errors["info"]["emp_id"]}' + '&timetable_id=#{@tt.id}' + '&batch_id=#{@batch.id}&overwrite=1' + '&session_fingerprint=' + '#{session_fingerprint(true)}'",
@@ -250,7 +251,7 @@
                                  :success => "Element.hide('loader_#{tte_id}')" -%>
             <% else %>
               <%= link_to_remote "#{t('continue')}", :url => {:action => "tt_entry_update2"},:html=>{:class=>'buttons_black'},
-                                 :with => "'is_online=#{@is_online}' +'&meeting_link=#{@meeting_link}' + '&meeting_id=#{@meeting_id}' + '&meeting_passcode=#{@meeting_passcode}'  + '&gclass_code=#{@gclass_code}' + '&sub_id=#{errors["info"]["sub_id"]}'  + '&week_day=#{weekday}' + '&class_timing=#{class_timing}'  + '&tte_id=#{errors["info"]["tte_id"]}' + '&emp_id=#{errors["info"]["emp_id"]}' + '&timetable_id=#{@tt.id}' + '&batch_id=#{@batch.id}'+'&session_fingerprint=' + '#{session_fingerprint(true)}'",
+                                 :with => " '&meeting_link=#{@meeting_link}' + '&is_online=#{@is_online}' + '&meeting_id=#{@meeting_id}' + '&meeting_passcode=#{@meeting_passcode}'  + '&gclass_code=#{@gclass_code}' + '&sub_id=#{errors["info"]["sub_id"]}'  + '&week_day=#{weekday}' + '&class_timing=#{class_timing}'  + '&tte_id=#{errors["info"]["tte_id"]}' + '&emp_id=#{errors["info"]["emp_id"]}' + '&timetable_id=#{@tt.id}' + '&batch_id=#{@batch.id}'+'&session_fingerprint=' + '#{session_fingerprint(true)}'",
                                  :before => "Element.show('loader_#{tte_id}')",
                                  :success => "Element.hide('loader_#{tte_id}')" -%>
 

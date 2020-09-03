@@ -8,7 +8,7 @@
 <div  hidden class="label-field-pair online_class   ">
   <label for="title"><%= t('meeting_link') %>:</label>
   <div class="text-input-bg" id="online_link">
-    <%= f.text_field :meeting_link, {:placeholder => 'Please include http://'} %>
+    <%= f.text_field :meeting_link, {:placeholder => 'Please include http://', :url => 'url'} %>
   </div>
   <label style="color: darkred" hidden id='link_error'  >Please enter a valid Meeting Link!</label>
 </div>
@@ -30,7 +30,7 @@
   <div hidden class="label-field-pair online_class  ">
     <label for="title"><%= t('google_class_code') %>:</label>
     <div class="text-input-bg" id="gclass_code">
-      <%= f.text_field :gclass_code, {:placeholder => 'Enter Passcode'} %>
+      <%= f.text_field :gclass_code, {:placeholder => 'Enter Google Classroom code'} %>
     </div>
   </div>
 
@@ -64,28 +64,28 @@
     }
 
 
-    function check_link(){
-        if (j("input[id='_online_is_online']").is(':checked')) {
-            var x = document.getElementById('_online_meeting_link').value;
-            url = validURL(x)
-            if (x == "" || url == false ) {
-                j("#link_error").show();
-                // j(".submit-disable").hide();
-            }
-            else {
-                j("#link_error").hide();
-                // j(".submit-disable").show();
-            }
-        }
-    }
-
-    j(document).on('keyup', "input[id='_online_meeting_link']:input", function () {
-        check_link()
-    });
-
-    j(document).on('change', "input[id='_online_meeting_link']:input", function () {
-        check_link()
-    });
+    // function check_link(){
+    //     if (j("input[id='_online_is_online']").is(':checked')) {
+    //         var x = document.getElementById('_online_meeting_link').value;
+    //         url = validURL(x)
+    //         if (x == "" || url == false ) {
+    //             j("#link_error").show();
+    //             // j(".submit-disable").hide();
+    //         }
+    //         else {
+    //             j("#link_error").hide();
+    //             // j(".submit-disable").show();
+    //         }
+    //     }
+    // }
+    //
+    // j(document).on('keyup', "input[id='_online_meeting_link']:input", function () {
+    //     check_link()
+    // });
+    //
+    // j(document).on('change', "input[id='_online_meeting_link']:input", function () {
+    //     check_link()
+    // });
 
 </script>
 

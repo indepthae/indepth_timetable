@@ -46,6 +46,7 @@
       var  fingerprint_id=j('#session_fingerprint').val();
       is_online = document.getElementById('_online_is_online').value;
       meeting_link = document.getElementById('_online_meeting_link').value;
+      meeting_link = meeting_link.replace('?','@@')
       meeting_id = document.getElementById('_online_meeting_id').value;
       meeting_passcode = document.getElementById('_online_meeting_passcode').value;
       gclass_code = document.getElementById('_online_gclass_code').value;
@@ -81,9 +82,11 @@
   function make_other_ajax_calls(emp_sub_id){
       is_online = document.getElementById('_online_is_online').value;
       meeting_link = document.getElementById('_online_meeting_link').value;
+      meeting_link = meeting_link.replace('?','@@')
       meeting_id = document.getElementById('_online_meeting_id').value;
       meeting_passcode = document.getElementById('_online_meeting_passcode').value;
-      gclass_code = document.getElementById('_online_gclass_code').value;      for (x in selected_divs)
+      gclass_code = document.getElementById('_online_gclass_code').value;
+      for (x in selected_divs)
           tte_list = selected_divs.join(',');
       var  fingerprint_id=j('#session_fingerprint').val();
       <%= remote_function(

@@ -1,0 +1,14 @@
+<% result=palette.get_result(:cr_date=>cur_date,:off=>off,:lim=>lim) %>
+<% result.first(3).each do|r| %>
+  <div class='portlet-subcontent'>
+    <%= r %>
+  </div>
+<% end %>
+<div class="view-more-div" id="<%= palette.name %>-more-div">
+  <label id="<%= palette.name %>-count" style="display:none">3</label>
+<%#= hidden_field_tag "#{palette.name}_count", 3, :id=>"#{palette.name}-count" %>
+  <% if result.count == 4 %>
+    <%= link_to t('view_more'),"#",{:class=>"view-more themed_text",:id=>"#{palette.name}-view-more", :onClick=>"show_more_results(this); return false;"} %>
+    <%= image_tag("Loader-transparant.gif",:align => "absmiddle",:border => 0,:id => "#{palette.name}-more-loader", :class=>"palette-more-loader", :style =>"display: none;" ) %>
+  <% end %>
+</div>

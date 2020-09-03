@@ -95,10 +95,12 @@ module IndepthTimetable
     def update_multiple_timetable_entries2_with_indepth
       @is_online = params[:is_online]
       @meeting_link = params[:meeting_link]
+      @meeting_link.present? ? @meeting_link.sub!('@@','?') : ''
       @meeting_id = params[:meeting_id]
       @meeting_passcode = params[:meeting_passcode]
       @timetable=Timetable.find(params[:timetable_id])
       @gclass_code = params[:gclass_code]
+
       employees_subjects = EmployeesSubject.find_all_by_id(params[:emp_sub_id].split(',').sort, :include => :subject)
       employees_subject = employees_subjects.first
       elective_ids = employees_subjects.collect { |es| es.subject.elective_group_id }.reject { |eg| !eg.present? }.uniq
@@ -205,8 +207,8 @@ module IndepthTimetable
             unless tte.nil?
               tte.employee_ids = emp_ids.present? ? (tte.entry_id == entry_id ? (tte.employee_ids + emp_ids).uniq : emp_ids.uniq ) : []
               tte = TimetableEntry.update(tte.id, :entry_id => entry_id, :entry_type => entry_type, :timetable_id=>@timetable.id,
-                                          :is_online => @is_online == @is_online,
-                                          :meeting_link => params[:meeting_link],
+                                          :is_online => @is_online ,
+                                          :meeting_link => @meeting_link,
                                           :meeting_id => @meeting_id,
                                           :meeting_passcode => @meeting_passcode,
                                           :gclass_code => @gclass_code
@@ -220,7 +222,7 @@ module IndepthTimetable
                   :batch_id=>@batch.id,
                   :timetable_id=>@timetable.id,
                   :is_online => @is_online,
-                  :meeting_link => params[:meeting_link],
+                  :meeting_link => @meeting_link,
                   :meeting_id => @meeting_id,
                   :meeting_passcode => @meeting_passcode,
                   :gclass_code => @gclass_code
@@ -246,6 +248,7 @@ module IndepthTimetable
     def tt_entry_update2_with_indepth
       @is_online = params[:is_online]
       @meeting_link = params[:meeting_link]
+      @meeting_link.present? ? @meeting_link.sub!('@@','?') : ''
       @meeting_id = params[:meeting_id]
       @meeting_passcode = params[:meeting_passcode]
       @gclass_code = params[:gclass_code]
@@ -280,9 +283,10 @@ module IndepthTimetable
           weekday,class_timing,@batch.id,@timetable.id)
       unless tte.nil?
         previous_subject = tte.entry if tte.present?
-        tte = TimetableEntry.update(tte.id, :entry_id => entry_id, :entry_type => entry_type,
+        tte = TimetableEntry.update(tte.id, :entry_id => entry_id,
+                                    :entry_type => entry_type,
                                     :is_online => @is_online,
-                                    :meeting_link => params[:meeting_link],
+                                    :meeting_link => @meeting_link,
                                     :meeting_id => @meeting_id,
                                     :meeting_passcode => @meeting_passcode,
                                     :gclass_code => @gclass_code
@@ -294,7 +298,7 @@ module IndepthTimetable
                                     :batch_id=>@batch.id,
                                     :timetable_id=>@timetable.id,
                                     :is_online => @is_online,
-                                    :meeting_link => params[:meeting_link],
+                                    :meeting_link => @meeting_link,
                                     :meeting_id => @meeting_id,
                                     :meeting_passcode => @meeting_passcode,
                                     :gclass_code => @gclass_code

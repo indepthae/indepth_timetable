@@ -1,0 +1,10 @@
+<div class="portlet-date">
+  <%= link_to '<div class ="date-previous"></div>',"#" ,{:class=>"prev_date_arrow", :id=>"#{palette.name}-prev", :onClick=>"get_prev_date(this); return false;"} %>
+  <label id=<%= "#{palette.name}" %> ><%= format_date(@today,:format=>:long) %> <%= t('today_text') %></label>
+  <%= link_to '<div class="date-next"></div>',"#" ,{:class=>"next-date-arrow", :id=>"#{palette.name}-next", :onClick=>"get_next_date(this); return false;"} %>
+  <%= hidden_field_tag "#{palette.name}", @today.strftime("%Y-%m-%d"), :class=>"datepicker", :id=>"#{palette.name}-date", :autocomplete=>:off, :onchange=>"set_date(this)" %>
+  <%= image_tag("Loader-transparant.gif",:align => "absmiddle",:border => 0,:id => "#{palette.name}-loader", :class=>"palette-loader", :style =>"display: none;" ) %>
+</div>
+<div class="palette-info" id=<%= "#{palette.name}-subcontent" %> >
+  <%= render :partial=>"palette_subcontent", :locals=>{:palette=>palette, :cur_date=>cur_date, :off=>0, :lim=>4} %>
+</div>

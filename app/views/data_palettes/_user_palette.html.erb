@@ -1,0 +1,14 @@
+<% minimized = palette.user_palettes.select{|p| p.user_id == @current_user.id}.first.is_minimized %>
+<%# minimized = UserPalette.find_by_user_id_and_palette_id(@current_user.id,palette.id).is_minimized %>
+<div class="portlet-header">
+  <div class="<%= palette.icon %> palette-icon"></div><span class="name-span"><%=  t("data_palettes.#{palette.name}") %></span>
+  <% if minimized == true %>
+    <span class='ui-icon ui-icon-plusthick'></span>
+  <% else %>
+    <span class='ui-icon ui-icon-minusthick'></span>
+  <% end %>
+  <span class="refresh-icon" id='<%= "#{palette.name}-refresh" %>'></span>
+</div>
+<div class="portlet-content" id='<%= "#{palette.name}-palette-content" %>' style="<%= minimized==true ? "display:none;" : "display:block;"   %>" >
+  <%#= render :partial=>"palette_content", :locals=>{:palette=>palette, :cur_date=>cur_date} %>
+</div>

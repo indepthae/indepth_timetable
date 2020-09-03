@@ -1,0 +1,15 @@
+<% form_for :palette, :url=>{:controller=>"data_palettes", :action=>"modify_user_palettes"}, :html=>{:method=>"post",:id=>"palette-form",:onsubmit=>"submit_palette(); return false;"} do|f| %>
+  <% available_palettes.each do|palette| %>
+    <div class="palette-box">
+      <%= check_box_tag "palette[selected_palettes][]",palette.id, UserPalette.exists?(:user_id=>@current_user.id,:palette_id=>palette.id), :id=>palette.name+"_check" %>
+      <label for="<%= palette.name %>_check"><%= t("data_palettes.#{palette.name}") %></label>
+    </div>
+  <% end %>
+<div class = "palette-buttons">
+  <%= link_to t('cancel'), "#", {:class  => 'grey-button-large', :id => 'palette-list-cancel', :onClick=>'hide_list(); return false;'}%>
+  <%= f.submit t('save'), :class  => 'themed_bg', :id => 'palette-list-submit' %>
+  <%= image_tag("Loader-transparant.gif",:align => "absmiddle",:border => 0,:id => "list-loader", :style =>"display: none;" ) %>
+</div>
+<div class="box-border"></div>
+<% end %>
+

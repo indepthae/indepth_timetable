@@ -46,7 +46,7 @@
         <label class="emp-line" style="margin-top: 3px">Class code:<%= @tte.gclass_code %></label><br>
       <% end %>
       <% if @tte.meeting_link.present? %>
-        <button style="min-width:150px; margin-top: 3px; margin-left: 15px;;background-color: forestgreen; color: whitesmoke; cursor: pointer; border-radius: 12px; " onclick="window.open('<%= @tte.meeting_link%>','_blank')">
+        <button style="min-width:150px;min-height:30px; margin-top: 3px; margin-left: 15px;;background-color: forestgreen; color: whitesmoke; cursor: pointer; border-radius: 12px; " onclick="window.open('<%= @tte.meeting_link%>','_blank')">
           <b>Join Meeting</b></button>
       <% end %>
     <% end %>
@@ -95,7 +95,7 @@
           <label class="emp-line" style="margin-top: 3px">Class code:<%= @tte.gclass_code %></label><br>
         <% end %>
         <% if @tte.meeting_link.present? %>
-          <button style="min-width:150px; margin-top: 3px; margin-left: 15px;;background-color: forestgreen; color: whitesmoke; cursor: pointer; border-radius: 12px; " onclick="window.open('<%= @tte.meeting_link%>','_blank')">
+          <button style="min-width:150px;min-height:30px; margin-top: 3px; margin-left: 15px;;background-color: forestgreen; color: whitesmoke; cursor: pointer; border-radius: 12px; " onclick="window.open('<%= @tte.meeting_link%>','_blank')">
             <b>Join Meeting</b></button>
         <% end %>
       <% end %>
