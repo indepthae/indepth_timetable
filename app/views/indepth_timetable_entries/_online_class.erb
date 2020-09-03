@@ -64,28 +64,28 @@
     }
 
 
-    // function check_link(){
-    //     if (j("input[id='_online_is_online']").is(':checked')) {
-    //         var x = document.getElementById('_online_meeting_link').value;
-    //         url = validURL(x)
-    //         if (x == "" || url == false ) {
-    //             j("#link_error").show();
-    //             // j(".submit-disable").hide();
-    //         }
-    //         else {
-    //             j("#link_error").hide();
-    //             // j(".submit-disable").show();
-    //         }
-    //     }
-    // }
-    //
-    // j(document).on('keyup', "input[id='_online_meeting_link']:input", function () {
-    //     check_link()
-    // });
-    //
-    // j(document).on('change', "input[id='_online_meeting_link']:input", function () {
-    //     check_link()
-    // });
+    function check_link(){
+        if (j("input[id='_online_is_online']").is(':checked')) {
+            var x = document.getElementById('_online_meeting_link').value;
+            url = validURL(x)
+            if (x == "" || url == false ) {
+                j("#link_error").show();
+                // j(".submit-disable").hide();
+            }
+            else {
+                j("#link_error").hide();
+                // j(".submit-disable").show();
+            }
+        }
+    }
+
+    j(document).on('keyup', "input[id='_online_meeting_link']:input", function () {
+        check_link()
+    });
+
+    j(document).on('change', "input[id='_online_meeting_link']:input", function () {
+        check_link()
+    });
 
 </script>
 

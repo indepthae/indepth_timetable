@@ -7,6 +7,7 @@ module IndepthTimetable
         alias_method_chain :update_timetable_view, :indepth
         alias_method_chain :timetable_pdf, :indepth
         alias_method_chain :update_student_tt, :indepth
+        alias_method_chain :student_view, :indepth
 
       end
     end
@@ -42,6 +43,34 @@ module IndepthTimetable
       render :pdf => 'indepth_timetable/timetable_pdf', #:show_as_html => true,
              :orientation => 'Landscape',:margin =>{:top=>5,:bottom=>5,:left=>5,:right=>5}, :zoom=> @zoom,
              :header => {:html => { :content=> ''}}, :footer => {:html => { :template=> 'layouts/pdf_footer.html'}}
+    end
+
+    def student_view_with_indepth
+      @student = Student.find(params[:id])
+      @batch=@student.batch
+      if @batch.weekday_set_id.present?
+        timetable_ids=@batch.timetable_entries.collect(&:timetable_id).uniq
+        @timetables=Timetable.find(timetable_ids,:order => "start_date DESC")
+        @current=Timetable.find(:first, :conditions => ["timetables.start_date <= ? AND timetables.end_date >= ? and id IN (?)", @local_tzone_time.to_date, @local_tzone_time.to_date, timetable_ids])
+        @timetable_entries = Hash.new { |l, k| l[k] = Hash.new(&l.default_proc) }
+        unless @current.nil?
+          @class_timing_sets=TimeTableClassTiming.find_by_batch_id_and_timetable_id(@batch.try(:id), @current.try(:id)).time_table_class_timing_sets(:joins=>{:class_timing_set=>:class_timings})
+          #        @entries=@current.timetable_entries.find(:all, :conditions => {:batch_id => @batch.id, :class_timing_id => @class_timings})
+          @entries=TimetableEntry.find(:all,:conditions=>{:batch_id=>@batch.id,:timetable_id=>@current.id},:include=>[:entry,:employees,:timetable_swaps])
+          @all_timetable_entries = @entries.select { |s| s.class_timing.is_deleted==false }
+          #        @all_weekdays = weekday_arrangers(@all_timetable_entries.collect(&:weekday_id).uniq)
+          @all_weekdays = weekday_arrangers(@class_timing_sets.collect(&:weekday_id).uniq)
+          #        @all_classtimings = @all_timetable_entries.collect(&:class_timing).uniq.sort! { |a, b| a.start_time <=> b.start_time }
+          @all_teachers = @all_timetable_entries.collect(&:employees).flatten.uniq
+          @all_timetable_entries.each do |tt|
+            @timetable_entries[tt.weekday_id][tt.class_timing_id] = tt
+          end
+        end
+      else
+        flash[:notice] = t('timetable_not_set')
+        redirect_to :controller => 'user', :action => 'dashboard'
+      end
+      render 'indepth_timetable/student_view'
     end
 
     def update_student_tt_with_indepth
