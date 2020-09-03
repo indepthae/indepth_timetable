@@ -6,6 +6,7 @@ module IndepthTimetable
 
         alias_method_chain :update_timetable_view, :indepth
         alias_method_chain :timetable_pdf, :indepth
+        alias_method_chain :update_student_tt, :indepth
 
       end
     end
@@ -42,6 +43,46 @@ module IndepthTimetable
              :orientation => 'Landscape',:margin =>{:top=>5,:bottom=>5,:left=>5,:right=>5}, :zoom=> @zoom,
              :header => {:html => { :content=> ''}}, :footer => {:html => { :template=> 'layouts/pdf_footer.html'}}
     end
+
+    def update_student_tt_with_indepth
+      @student = Student.find(params[:id])
+      @batch=@student.batch
+      @all_timetable_entries = Array.new
+      if params[:timetable_id].nil?
+        @current=Timetable.find(:first, :conditions => ["timetables.start_date <= ? AND timetables.end_date >= ?", @local_tzone_time.to_date, @local_tzone_time.to_date])
+      else
+        if params[:timetable_id]==""
+          render :update do |page|
+            page.replace_html "box", :text => ""
+          end
+          return
+        else
+          @current=Timetable.find(params[:timetable_id])
+        end
+      end
+      @timetable_entries = Hash.new { |l, k| l[k] = Hash.new(&l.default_proc) }
+      unless @current.nil?
+        ttct = TimeTableClassTiming.find_by_batch_id_and_timetable_id(@batch.try(:id), @current.try(:id))
+        if ttct.present?
+          @class_timing_sets=TimeTableClassTiming.find_by_batch_id_and_timetable_id(@batch.try(:id), @current.try(:id)).time_table_class_timing_sets(:joins=>{:class_timing_set=>:class_timings})
+          #        @entries=@current.timetable_entries.find(:all, :conditions => {:batch_id => @batch.id, :class_timing_id => @class_timings})
+          @entries=TimetableEntry.find(:all,:conditions=>{:batch_id=>@batch.id,:timetable_id=>@current.id},:include=>[:entry,:employees,:timetable_swaps])
+          @all_timetable_entries = @entries.select { |s| s.class_timing.is_deleted==false }
+          @all_weekdays = weekday_arrangers(@all_timetable_entries.collect(&:weekday_id).uniq.sort)
+          #        @all_classtimings = @all_timetable_entries.collect(&:class_timing).uniq.sort! { |a, b| a.start_time <=> b.start_time }
+          @all_teachers = @all_timetable_entries.collect(&:employee).uniq
+          @all_timetable_entries.each do |tt|
+            @timetable_entries[tt.weekday_id][tt.class_timing_id] = tt
+          end
+        end
+      end
+
+      render :update do |page|
+        page.replace_html "time_table", :partial => "indepth_timetable/student_timetable"
+      end
+    end
+
+
 
 
 
