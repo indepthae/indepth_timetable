@@ -1,0 +1,421 @@
+<%-# Fedena
+#Copyright 2010 Foradian Technologies Private Limited
+#
+#This product includes software developed at
+#Project Fedena - http://www.projectfedena.org/
+#
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing,
+#software distributed under the License is distributed on an
+#"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#KIND, either express or implied.  See the License for the
+#specific language governing permissions and limitations
+#under the License. -%>
+<%= wicked_pdf_javascript_include_tag 'cache/javascripts/all' %>
+
+<div id="body_margin">
+    <div class="report" id="report">
+        <div id="pdf_header">
+            <div id="tt_name"><%=t('timetable_text')%> : <%=format_date(@tt.start_date,:format=>:long_date)%> - <%=format_date(@tt.end_date,:format=>:long_date)%></div>
+            <div id="batch_name"><%=t('batch')%> : <%=@batch.full_name%></div>
+        </div>
+        <div id="pdf-info">
+            <div id="pdf-table">
+                <% legend_ttes = [] %>
+                <% ct_breaks = true %>
+                <% if @classtimingsets == 1 && @max_period_count <= 15 %>
+                  <%  first_class_timings = @class_timing_sets.first.class_timing_set.class_timings.sort_by{|ct| ct.start_time} %>
+                  <div class="even" id="periods">                                            
+                      <% first_class_timings.each_with_index do |ct,i|  %>                        
+                        <% if ct.is_break %>                            
+                          <div class="row-col col-pdf-break"></div>                          
+                        <% else %>
+                          <div class="row-col col-pdf-slots">
+                              <span class="period_name">
+                                  <%= (i+1) %>
+                                  <% shorten_string(ct.name, 12) %>
+                              </span>
+                              <span class="period_time">
+                                  <%="#{format_date(ct.start_time,:format=>:time)} - #{format_date(ct.end_time,:format=>:time)}"%>
+                              </span>
+                          </div>
+                        <% end %>
+                      <% end %>
+                  </div>
+                <% end %>
+                <% @weekday.each do |week| %>
+                  <% c =cycle('even','even ') %>
+                  <div class="<%= "#{c}"%> <%=  @classtimingsets_count == 1 ? 'common_period' : '' %> " id="<%="#{c}_#{week}"%>">                      
+                      <div class="row-col col-pdf_weekday" id="<%="#{c}_#{week}"%>">
+                          <div class="weekday_name">
+                              <% WeekdaySet.shortened_weekday_name(week) -%>
+                              <%= WeekdaySet.weekday_name(week) -%>
+                          </div>
+                      </div>                      
+                      <%@class_timings=@class_timing_sets.find_by_weekday_id(week).class_timing_set.class_timings.sort_by{|ct| ct.start_time} #.timetable_timings%>                      
+                      <% cnt = 0 %>                                            
+                      <% @class_timings.each_with_index do |ct,i|  %>                        
+                        <% tte = @timetable[week][ct.id]%>
+                        <% if (tte.is_a? TimetableEntry and !ct.is_break?) %>
+                          <div class="row-col col-pdf-slots">                                                            
+                              <% if @classtimingsets_count > 1 || @max_period_count > 15 %>
+                                <span class="period_name">
+                                    <%= shorten_string(ct.name, 12) %>
+                                </span>
+                                <span class="period_time">
+                                    <%="&lrm;#{format_date(ct.start_time,:format=>:time_en)}&lrm; - &lrm;#{format_date(ct.end_time,:format=>:time_en)}&lrm;"%>
+                                </span>
+                              <% end %>
+                              <% period = subject_name_by_settings(tte.entry, @config_value) %>
+                              <span class="pdf_period">
+                                  <%= period %>
+                              </span>
+                              <% unless tte.entry_type == "ElectiveGroup"   %>
+                                <% teacher_names_arr = timetable_entry_employee_names(tte.employees) %>
+                                <span class="pdf_teacher">
+                                    <%= teacher_names_arr.first %>                                    
+                                </span>
+                                <% legend_ttes << tte if teacher_names_arr.second %>
+                              <% else %>
+                                <span class="pdf_teacher">
+                                    (<%= t('elective') %>)
+                                </span>
+                              <% end %>
+                            <div class="online">
+                              <% if tte.is_online? %>
+                                <% if tte.meeting_id.present? %>
+                                  <label class="emp-line" style="margin-top: 3px">ID: <%= tte.meeting_id %></label><br>
+                                <% end %>
+                                <% if tte.meeting_passcode.present? %>
+                                  <label class="emp-line" style="margin-top: 3px">Pass:<%= tte.meeting_passcode %></label><br>
+                                <% end %>
+                                <% if tte.gclass_code.present? %>
+                                  <label class="emp-line" style="margin-top: 3px">Class code:<%= tte.gclass_code %></label><br>
+                                <% end %>
+                                <% if tte.meeting_link.present? %>
+                                  <label class="emp-line" style="margin-top: 3px">Meeting Link:<%= tte.meeting_link %></label><br>
+                                <% end %>
+                              <% end %>
+                            </div>
+
+                          </div>
+                        <% else %>
+                          <%if ct.is_break?%>
+                            <% ct_breaks ||= true %>
+                            <div class="row-col col-pdf-break"></div>
+                          <%else%>
+                            <div class="row-col col-pdf-slots">
+                                <% if @classtimingsets_count > 1 %>                                
+                                  <span class="period_name">
+                                      <%= shorten_string(ct.name, 12) %>
+                                  </span>
+                                  <span class="period_time">
+                                      <%="&lrm;#{format_date(ct.start_time,:format=>:time_en)}&lrm; - &lrm;#{format_date(ct.end_time,:format=>:time_en)}&lrm;"%>
+                                  </span>
+                                <% end %>
+                            </div>
+                          <%end%>
+                        <% end %>
+                      <% end %>
+                  </div>
+                <% end %>
+            </div>
+        </div>
+    </div>
+</div>
+<% if ct_breaks %>
+  <div id="legend-break-indicator-area">
+      <div class="legend-break-indicator" id="legend-break-indicator">
+          <div class="break-marker"></div>
+          <div class="break-indicator"><%= t('timetable_break') %></div>
+      </div>
+  </div>
+<% end %>
+
+<% if @batch.elective_groups.present? or legend_ttes.present? %>
+  <div class="legends" border="0" id="legends">      
+      <div class="legend_heading">
+          <div class="legend_text"><%= t('timetable_pdf_legends') %></div>
+      </div>      
+      <% weekdays = legend_ttes.group_by{|x| x.weekday_id } %>
+      <% weekdays.each_pair do |k,v| %>
+        <% sub_ttes = v.group_by(&:entry_id) %>
+        <% sub_ttes.each_pair do |x,y| %>
+          <% sub_ttes_hash = y.group_by(&:employee_ids) %>
+          <% sub_ttes_hash.each_pair do |emp_ids, tte_recs| %>            
+            <div class="legend_tte_group legend_component">
+                <div class="legend_group_names">
+                    <div class="legend_weekday">
+                        <%= "#{WeekdaySet.weekday_name(k)}" %>
+                    </div>
+                    <div class="legend_class_timing_separator">
+                        <%= "&nbsp;:&nbsp;" %>
+                    </div>
+                    <% tte_recs.each_with_index do |tte,i| %>
+                      <div class="legend_class_timing">
+                          <%= tte.class_timing.name %> &nbsp;
+                          <%= "&lrm;(#{format_date(tte.class_timing.start_time,:format=>:time_en)} - #{format_date(tte.class_timing.end_time,:format=>:time_en)})&lrm;" %>
+                      </div>
+                      <div class="legend_class_timing_separator">
+                          <%= ",&nbsp;&nbsp;" unless (i+1) == tte_recs.count %>
+                      </div>
+                    <% end %>
+                </div>
+                <div class="legend_tte_subject">
+                    <%= "#{tte_recs.first.entry.name.titleize}" %>
+                </div>
+                <div class="legend_tte_employee">
+                    <%= "#{tte_recs.first.employees.map(&:first_name).join(', ')}" %>
+                </div>
+            </div>            
+          <% end %>
+        <% end %>
+
+      <% end %>
+
+      <% @batch.elective_groups.select{|e| e.is_deleted==false}.each do |el| %>
+        <div class="electives legend_component">
+            <div class="group_names"><%= el.name %></div>
+            <%if el.subjects.select{|s| s.is_deleted==false}.count!=0%>
+              <% el.subjects.select{|s| s.is_deleted==false}.each do |sub| %>
+                <div class="subject-employees">
+                    <div class="subject"><%= sub.name %></div>
+                    <div class="employee">: <%= sub.employees.count!=0 ? sub.employees.collect{|e| e.full_name.strip}.join(', ') : t('no_employee_assigned') %></div>
+                </div>
+              <% end %>
+            <%else%>
+              <%=t('no_elec_subjects')%>
+            <%end%>
+        </div>
+      <% end %>
+
+  </div>
+<% end %>
+<div id="0"></div>
+<script type="text/javascript">
+  var min_width = 1084;
+  // 0.9 zoom for 15 periods in a row, max width can go around 1733px excluding 5px padding across edges
+  // 1.0 zoom for 9-14 periods in a row, max width can go around 1693px with min width of 1084 excluding 5px padding across edges
+  var zoom = <%= @zoom %>;
+  var v_max_width = zoom < 1 ? 1733 : 1693;
+  var max_width = v_max_width;
+  var period_limit = zoom < 1 ? 15 : 14;
+  var period_before_limit = 0;
+  var break_before_limit = 0;
+  var max_period = 0;
+  var max_break = 0;
+  var max_row_width = 0;
+  var weekday_width = 0;
+  var row_lines = 0;
+  var all_row_lines = [];
+  var max_height = 0;
+  var i = 0;
+  width = $$('.report').first().getWidth();
+  $$('.report').first().style.width = width;
+  $$('.report .even').each(function (row) {
+      i = i + 1;
+      elements = row.getElementsByClassName('row-col');
+      row_width = 0;
+      var last_element;
+      var period_before_limit = 0;
+      var break_before_limit = 0;
+      var row_lines = 0;
+      for (var itr in elements) {
+          if (elements.hasOwnProperty(itr) && !isNaN(itr)) {
+              if (elements[itr].classList.contains('col-pdf_weekday')) {
+                  elements[itr].className += zoom < 1 ? " col-pdf_weekday_zoom" : "";
+                  row_lines = 0;
+                  weekday_width = elements[itr].getWidth();
+                  if (zoom < 1) {
+                      row_width = weekday_width; // + 1;
+                  }
+              } else {
+                  if (period_before_limit == period_limit) {
+                      row_lines += 1;
+                      max_period = max_period > period_before_limit ? max_period : period_before_limit;
+                      max_break = max_break > break_before_limit ? max_break : break_before_limit;
+                      max_row_width = max_row_width > row_width ? max_row_width : row_width;
+                      row_width = weekday_width;
+                      period_before_limit = 0;
+                      break_before_limit = 0;
+                  }
+                  period_before_limit += elements[itr].classList.contains('col-pdf-slots') ? 1 : 0;
+                  break_before_limit += elements[itr].classList.contains('col-pdf-break') ? 1 : 0;
+                  cell_width = elements[itr].getWidth();                  
+                  row_width += cell_width;
+                  last_element = elements[itr];
+              }
+          }
+      }
+      if(zoom < 1){
+        row_width += max_period >= 5 ? 40 : Math.ceil(max_period / 3.0);
+        if (max_break > 0) {
+            switch (max_break) {
+                case 1: row_width += 1;
+                    break;
+                case 5: row_width += 2;
+                    break;
+                case 8: row_width += 3;
+                    break;
+                case 11: row_width += 4;
+                    break;
+                case 14: row_width += 5;
+                    break;
+                default:
+                  row_width += 1;
+            }
+
+        }
+      }      
+
+      if (period_before_limit == period_limit) {
+          row_lines += 1;
+          max_period = max_period > period_before_limit ? max_period : period_before_limit;
+          max_break = max_break > break_before_limit ? max_break : break_before_limit;
+          max_row_width = max_row_width > row_width ? max_row_width : row_width;
+          row_width = weekday_width;
+          period_before_limit = 0;
+          break_before_limit = 0;
+      } else if (period_before_limit > 0 || break_before_limit > 0) {
+          row_lines += 1;
+          max_period = max_period > period_before_limit ? max_period : period_before_limit;
+          max_break = max_break > break_before_limit ? max_break : break_before_limit;
+          max_row_width = max_row_width > row_width ? max_row_width : row_width;
+          row_width = weekday_width;
+      }
+      row.className += " even_" + row_lines;
+      all_row_lines.push(row_lines);
+  });
+  max_width = (zoom == 1 && v_max_width < max_row_width) ? v_max_width : max_row_width;
+  //max_width = 1084;  
+  
+   if (zoom == 1) {
+      max_width += 19;
+  } else if (zoom < 1) {
+      max_width += all_row_lines.max() > 1 ? 7 : 1;
+  }
+  
+  document.getElementById('pdf-table').style.width = max_width + 'px';
+  document.getElementById('pdf-info').style.width = $('pdf-table').getWidth() + 'px';
+  info_width = $('pdf-info').getWidth();
+  if(max_period <= 9){
+    document.getElementById('report').style.width = min_width + 'px';    
+  }else{ // if(max_periods >= 15){
+    document.getElementById('report').style.width = info_width + 'px';        
+  }
+  document.getElementById('body_margin').style.width = $('report').getWidth() + 'px';
+  document.getElementById('legend-break-indicator-area').style.width = $('report').getWidth() + 'px';
+
+  var min_height = max_width < min_width ? 756 : Math.ceil((756.0 / 1084.0) * max_width); //document.body.getHeight();
+  
+if (all_row_lines.max() > 1 && eval(all_row_lines.join('+')) > 7) {
+      var page = 1;
+      var actual_height = 0;
+      var current_height = 0;
+      var this_height = 0;
+      var doc_height = min_height; //document.body.getHeight();
+      for (var i in all_row_lines) {
+          if (all_row_lines.hasOwnProperty(i) && !isNaN(i)) {
+              //document.getElementById(0).innerHTML += ";<br/> i : " + i + "; all_row_lines[i] " + all_row_lines[i];
+              switch (all_row_lines[i]) {
+                  case 1:
+                      current_height = 94;
+                      break;
+                  case 2:
+                      current_height = 180;
+                      break;
+                  case 3:
+                      current_height = 270;
+                      break;
+                  case 4:
+                      current_height = 360;
+                      break;
+                  default: // for other values
+                      current_height = all_row_lines[i] * 90;
+                      break;
+              }
+              
+              if ((doc_height - this_height) < current_height) {
+                  page += 1;
+                  actual_height += doc_height;
+                  this_height = current_height;
+  //                document.getElementById(0).innerHTML += ";<br/> this height : " + this_height + "<br/>";
+              } else {
+                  this_height += current_height;
+//                  document.getElementById(0).innerHTML += ";<br/> this height : " + this_height + "<br/>";
+              }
+          } else {
+              break;
+          }
+      }
+      this_height += (page == 1 ? 0 : 5);
+      actual_height += this_height;
+      document.getElementById('body_margin').style.height = actual_height + 'px';
+  }
+
+  document.getElementById('pdf-info').style.height = $('pdf-table').getHeight() + 'px';
+  document.getElementById('report').style.height = ($('pdf_header').getHeight() + $('pdf-info').getHeight() + 10) + 'px';
+
+  document.getElementById('legends').style.width = (min_width > max_width ? min_width : max_width) + 'px';
+  
+  if(zoom == 1 || max_period < 12){
+    gap_in_end = actual_height !== undefined ? (actual_height - min_height) : (min_height - ($$('.report')[0].getHeight() + 40));
+    
+    if(gap_in_end > 0){
+      legend_components = $$('.legend_component');
+      var legend_component_row_width = 0;
+      var legend_component_row_height = 0;
+      var legend_component_row_max_height = 0;
+      var legend_component_width = 0;
+      for(var i in legend_components){
+        if (legend_components.hasOwnProperty(i) && !isNaN(i)) {
+          legend_component_width = parseInt(legend_components[i].getWidth());
+          legend_component_row_height = legend_components[i].getHeight();
+          legend_component_row_max_height = Math.max(legend_component_row_max_height, legend_component_row_height);
+          if((legend_component_row_width + legend_component_width) >= max_width){
+            break;
+          }
+          legend_component_row_width += legend_component_width;
+          
+        }else{
+          break;
+        }
+      }
+      if((legend_component_row_max_height + $$('.legend_heading')[0].getHeight() + 10)> gap_in_end){              
+        $$('.legends').first().classList.add('page_break_before_always');
+      }else{
+        //$$('.legends').first().classList.add('legends_higher_resolution');              
+      }
+    }
+    
+    
+    /*
+    scale = max_width > min_width ? (max_width / min_width) : 1;
+    max_height = (min_height * scale).toFixed(2);
+    if ($$('.legends').length > 0) {
+        console.log('calculating');
+        height = $$('.report').first().getHeight();
+        offset_height_top = parseInt(window.getComputedStyle($$('.report').first()).getPropertyValue('margin-top'));
+        offset_height_bottom = parseInt(window.getComputedStyle($$('.report').first()).getPropertyValue('margin-bottom'));
+        report_height = height + offset_height_top + offset_height_bottom;
+        scaled_report_height = (report_height / scale).toFixed(2);
+        vertical_space = max_height - scaled_report_height;
+        legend_height = $$('.legend_heading').first().getHeight();
+        legend_component_first = $$('.legend_component').first();
+        legend_component_height = legend_component_first.getHeight();
+        legend_component_height += parseInt(window.getComputedStyle(legend_component_first).getPropertyValue('margin-top'));
+        legend_component_height += parseInt(window.getComputedStyle(legend_component_first).getPropertyValue('margin-bottom'));
+        legends_start_height = ((legend_height + legend_component_height) / scale).toFixed(2);
+        if (vertical_space < legends_start_height) {
+            $$('.legends').first().classList.add('legends_higher_resolution');
+            $$('.legends').first().classList.add('page_break_before_always');
+        }
+    }
+    */
+  }
+</script>
