@@ -19,13 +19,13 @@
 
 
 <script type="text/javascript">
-  dir = "<%= (rtl?) ? 'rtl' : 'ltr' %>"
-  if (dir == 'rtl') {
-    len = $('table').offsetWidth - $('table-viewer').offsetWidth;
-  }
-  else {
-    len = 0
-  }
+<!--  dir = "<%#= (rtl?) ? 'rtl' : 'ltr' %>"-->
+  // if (dir == 'rtl') {
+    // len = $('table').offsetWidth - $('table-viewer').offsetWidth;
+  // }
+  // else {
+    // len = 0
+  // }
   (function(j) {
     j.fn.hasScrollBar = function() {
       return this.get(0).scrollWidth > this.width();

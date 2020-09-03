@@ -1,1 +1,5 @@
 ar: # locale
+    online_class: 'فصل عبر الإنترنت'
+    meeting_id: 'فصل عبر الإنترنت'
+    pass_code: 'كلمة مرور الاجتماع'
+    google_class_code: 'كود جوجل'

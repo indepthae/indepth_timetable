@@ -10,7 +10,7 @@
   <div class="text-input-bg" id="online_link">
     <%= f.text_field :meeting_link, {:placeholder => 'Please include http://'} %>
   </div>
-  <label style="color: darkred" id='link_error'  >Please enter a valid Meeting Link!</label>
+  <label style="color: darkred" hidden id='link_error'  >Please enter a valid Meeting Link!</label>
 </div>
 
 <div  hidden class="label-field-pair online_class " style="padding-top: 20px;">
@@ -52,4 +52,43 @@
         j(".online_class").show();
     }
 
+
+    function validURL(str) {
+        var pattern = new RegExp('^(http:\\/\\/|https:\\/\\/)'+ // protocol
+            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+            '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+            '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+            '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+        return !!pattern.test(str);
+    }
+
+
+    function check_link(){
+        if (j("input[id='_online_is_online']").is(':checked')) {
+            var x = document.getElementById('_online_meeting_link').value;
+            url = validURL(x)
+            if (x == "" || url == false ) {
+                j("#link_error").show();
+                // j(".submit-disable").hide();
+            }
+            else {
+                j("#link_error").hide();
+                // j(".submit-disable").show();
+            }
+        }
+    }
+
+    j(document).on('keyup', "input[id='_online_meeting_link']:input", function () {
+        check_link()
+    });
+
+    j(document).on('change', "input[id='_online_meeting_link']:input", function () {
+        check_link()
+    });
+
 </script>
+
+
+
+
