@@ -8,7 +8,7 @@
 <div  hidden class="label-field-pair online_class   ">
   <label for="title"><%= t('meeting_link') %>:</label>
   <div class="text-input-bg" id="online_link">
-    <%= f.text_field :meeting_link, {:placeholder => 'Please include http://', :url => 'url'} %>
+    <%= f.text_field :meeting_link, {:placeholder => 'Please include http://', :type => 'url',  :class => 'link'} %>
   </div>
   <label style="color: darkred" hidden id='link_error'  >Please enter a valid Meeting Link!</label>
 </div>
@@ -16,21 +16,21 @@
 <div  hidden class="label-field-pair online_class " style="padding-top: 20px;">
   <label for="title"><%= t('meeting_id') %>:</label>
   <div class="text-input-bg" id="meeting_id">
-    <%= f.text_field :meeting_id, { :placeholder => 'Enter Meeting ID' }  %>
+    <%= f.text_field :meeting_id, { :placeholder => 'Enter Meeting ID', :class => 'meeting_id' }  %>
   <br></div>
 </div>
 
 <div hidden class="label-field-pair online_class  ">
   <label for="title"><%= t('pass_code') %>:</label>
   <div class="text-input-bg" id="pass_code">
-    <%= f.text_field :meeting_passcode, {:placeholder => 'Enter Passcode'} %>
+    <%= f.text_field :meeting_passcode, {:placeholder => 'Enter Passcode', :class => 'passcode'} %>
   </div>
 </div>
 
   <div hidden class="label-field-pair online_class  ">
     <label for="title"><%= t('google_class_code') %>:</label>
     <div class="text-input-bg" id="gclass_code">
-      <%= f.text_field :gclass_code, {:placeholder => 'Enter Google Classroom code'} %>
+      <%= f.text_field :gclass_code, {:placeholder => 'Enter Google Classroom code', :class => 'gclass_code'} %>
     </div>
   </div>
 

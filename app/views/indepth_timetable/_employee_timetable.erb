@@ -1,0 +1,137 @@
+<%-# Fedena
+#Copyright 2010 Foradian Technologies Private Limited
+#
+#This product includes software developed at
+#Project Fedena - http://www.projectfedena.org/
+#
+#Licensed under the Apache License, Version 2.0 (the "License");
+#you may not use this file except in compliance with the License.
+#You may obtain a copy of the License at
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#Unless required by applicable law or agreed to in writing,
+#software distributed under the License is distributed on an
+#"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#KIND, either express or implied.  See the License for the
+#specific language governing permissions and limitations
+#under the License. -%>
+
+<% if @all_timetable_entries.present? and @employee.present?%>
+  <div id="timetable-container">
+    <% if(@current_user.employee_record != @employee or @current_user.admin? or permitted_to? :timetable) %>
+      <div class="employee_timetable_header">
+        <div class="employee">
+          <span class="emp_lbl"><%= "#{t('employee_name')}: " %></span>
+          <%= @employee.full_name %>
+          <span class="emp_no"><%= "(&rlm;#{@employee.employee_number})" %></span>
+        </div>
+        <div class="emp_dept">
+          <span class="emp_lbl"><%= "#{t('department')}: " %></span>
+          <%= @employee.employee_department.name %>
+        </div>
+      </div>
+    <% end %>
+    <div id="employee_timetable">
+      <div class="weekdays">
+        <% @all_weekdays.each do |weekday| -%>
+          <div class="weekday-name">
+            <div class="weekday">
+              <%= WeekdaySet.weekday_name(weekday).upcase -%>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      <div class="timetable_entries_table">
+        <table cellspacing="0">
+          <% @all_weekdays.each do |weekday| -%>
+
+            <tr class="tte_row">
+              <% @all_classtimings.each do |ct| -%>
+                <% unless @timetable_entries[weekday][ct.id].blank? %>
+                  <td class="tte <%= @timetable_entries[weekday][ct.id].size > 1 ? 'tte-more':''%>">
+                    <div class="class_timings">
+                      <div class="ct_align">
+                        <% if @timetable_entries[weekday][ct.id].size > 1%>
+                          <span class="warning"></span>
+                        <% end %>
+                        <span><%="#{format_date(ct.start_time,:format=>:time)} - #{format_date(ct.end_time,:format=>:time)}"%></span>
+                      </div>
+                    </div>
+                    <% if @timetable_entries[weekday][ct.id].size > 1 %>
+                      <% @timetable_entries[weekday][ct.id].each_pair do |k, tte| %>
+                        <div class="batch">
+                          <div class="sub_name">
+                            <% if tte.entry.kind_of? ElectiveGroup %>
+                              <%= shorten_string(@electives[tte.entry_id].collect(&:name).join(", "),22) %>
+                              <div class="elective_title"><%= "(#{t('elective')})" %></div>
+                            <% else %>
+                              <%= shorten_string(tte.assigned_name,38) %>
+                            <% end %>
+                          </div>
+                          <div class="batch_name batch_code no_padding">
+                            <%= timetable_batch(tte)  -%>
+                          </div>
+                        </div>
+                      <% end %>
+
+                    <% else %>
+                      <div class="batch">
+                        <% tte = @timetable_entries[weekday][ct.id].first %>
+                        <% unless tte.blank? %>
+                          <% # = tte.last.id %>
+                          <% if tte.last.entry_type == 'Subject' %>
+                            <div class="sub_name">
+                              <%= shorten_string(tte.last.assigned_name,38) %>
+                            </div>
+                          <% else %>
+                            <div class="sub_name">
+                              <%= shorten_string((@electives[tte.last.entry_id].is_a? Array) ? @electives[tte.last.entry_id].collect(&:name).join(", ") : @electives[tte.last.entry_id].name,22)%>
+                              <div class="elective_title"><%= "(#{t('elective')})" %></div>
+                            </div>
+                          <% end %>
+                          <div class="batch_name batch_code no_padding">
+                            <%= timetable_batch(tte.last).strip  -%>
+                          </div>
+                        <% end %>
+                      <% end %>
+                    </div>
+                  </td>
+                <% end -%>
+              <% end -%>
+            </tr>
+
+          <% end -%>
+        </table>
+      </div>
+    </div>
+
+  </div>
+  <%= link_to " ► #{t('pdf_report')}",
+    {:controller => "timetable", :action => "employee_timetable_pdf", :id => @employee, #@current_user.employee_record.id,
+    :timetable_id=>@current.id},:target => '_blank', :class=> 'user_button' %>
+  <%= link_to "#{t('csv_report')}",
+    {:controller => "csv_export", :action => 'generate_csv', :csv_report_type => "employee_timetable_data",
+    :report_format_type => "csv" ,:employee_id =>@employee.id,:tt_id=>@current.id},:class=> 'user_button'%>
+<% else %>
+  <% if @employee.present? %>
+    <p class="flash-msg"><%= t('no_entries_found') %></p>
+  <% end %>
+<% end %>
+<script>
+  j('.tte-more').each(function(){
+    var width = 0;
+    j(this).find('.batch').each(function(a,b){
+      width += j(b).outerWidth();
+    });
+    j(this).attr('style','width:'+(width+2)+'px !important');
+  });
+  if(j('.weekday-name').length > 4){
+    tte_ele = j('.timetable_entries_table');
+    if(j(tte_ele).find('table').outerWidth() > j(tte_ele).outerWidth() && j(document).find('#teachers_list_view').height() < j(document).find('.weekdays').height()){
+      week_name_ele = j(document).find('.weekday-name').last();
+      ht = j(week_name_ele).outerHeight();
+      j(week_name_ele).css('height',ht+15).css('border-bottom',0);
+    }
+  }
+</script>

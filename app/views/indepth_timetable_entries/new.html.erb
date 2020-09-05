@@ -45,11 +45,32 @@
   function make_ajax_calls(tte_id, emp_sub_id){
       var  fingerprint_id=j('#session_fingerprint').val();
       is_online = document.getElementById('_online_is_online').value;
-      meeting_link = document.getElementById('_online_meeting_link').value;
-      meeting_link = meeting_link.replace('?','@@')
-      meeting_id = document.getElementById('_online_meeting_id').value;
-      meeting_passcode = document.getElementById('_online_meeting_passcode').value;
-      gclass_code = document.getElementById('_online_gclass_code').value;
+
+      arr = [];
+      meeting_link = document.getElementsByClassName('link');
+      for(i=0; i< meeting_link.length ; i++)
+          arr.push(meeting_link[i].value)
+      meeting_link = arr.join()
+      meeting_link = meeting_link.replace(/\?/g,'@@')
+      // alert(meeting_link)
+
+      arr = [];
+      meeting_id = document.getElementsByClassName('meeting_id');
+      for(i=0; i< meeting_id.length ; i++)
+          arr.push(meeting_id[i].value)
+      meeting_id = arr.join()
+
+      arr = [];
+      meeting_passcode = document.getElementsByClassName('passcode');
+      for(i=0; i< meeting_passcode.length ; i++)
+          arr.push(meeting_passcode[i].value)
+      meeting_passcode = arr.join()
+
+      arr = [];
+      gclass_code = document.getElementsByClassName('gclass_code');
+      for(i=0; i< gclass_code.length ; i++)
+          arr.push(gclass_code[i].value)
+      gclass_code = arr.join()
 
       if (selected_divs.length == 0) {
           <%= remote_function(
@@ -81,11 +102,33 @@
   }
   function make_other_ajax_calls(emp_sub_id){
       is_online = document.getElementById('_online_is_online').value;
-      meeting_link = document.getElementById('_online_meeting_link').value;
-      meeting_link = meeting_link.replace('?','@@')
-      meeting_id = document.getElementById('_online_meeting_id').value;
-      meeting_passcode = document.getElementById('_online_meeting_passcode').value;
-      gclass_code = document.getElementById('_online_gclass_code').value;
+
+      arr = [];
+      meeting_link = document.getElementsByClassName('link');
+      for(i=0; i< meeting_link.length ; i++)
+          arr.push(meeting_link[i].value)
+      meeting_link = arr.join()
+      meeting_link = meeting_link.replace(/\?/g,'@@')
+      // alert(meeting_link)
+
+      arr = [];
+      meeting_id = document.getElementsByClassName('meeting_id');
+      for(i=0; i< meeting_id.length ; i++)
+          arr.push(meeting_id[i].value)
+      meeting_id = arr.join()
+
+      arr = [];
+      meeting_passcode = document.getElementsByClassName('passcode');
+      for(i=0; i< meeting_passcode.length ; i++)
+          arr.push(meeting_passcode[i].value)
+      meeting_passcode = arr.join()
+
+      arr = [];
+      gclass_code = document.getElementsByClassName('gclass_code');
+      for(i=0; i< gclass_code.length ; i++)
+          arr.push(gclass_code[i].value)
+      gclass_code = arr.join()
+
       for (x in selected_divs)
           tte_list = selected_divs.join(',');
       var  fingerprint_id=j('#session_fingerprint').val();

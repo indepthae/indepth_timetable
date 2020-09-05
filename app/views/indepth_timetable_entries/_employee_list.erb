@@ -12,6 +12,9 @@
       </div>
       <%= draggable_element("emp_sub_#{emp_sub_ids}", :revert => true) %>
     </div>
+    <div id="employees" style="padding-top: 15px">
+      <%= render :partial => 'indepth_timetable_entries/online_class_elective' %>
+    </div>
   <% else %>
     <div id="employees">
       <div class="information_text"><span><%= t('drag_drop_info') %></span></div>
@@ -23,10 +26,11 @@
         <%= draggable_element("emp_sub_#{e.id}", :revert => true) %>
       <% end %>
     </div>
+    <div id="employees" style="padding-top: 15px">
+      <%= render :partial => 'indepth_timetable_entries/online_class' %>
+    </div>
   <% end %>
-  <div id="employees" style="padding-top: 15px">
-    <%= render :partial => 'indepth_timetable_entries/online_class' %>
-  </div>
+
 
   <div class="assign_button"><%= t('assign_text') %></div>
 <% else %>

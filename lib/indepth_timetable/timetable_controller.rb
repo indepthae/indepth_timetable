@@ -8,6 +8,7 @@ module IndepthTimetable
         alias_method_chain :timetable_pdf, :indepth
         alias_method_chain :update_student_tt, :indepth
         alias_method_chain :student_view, :indepth
+        alias_method_chain :update_teacher_tt, :indepth
 
       end
     end
@@ -108,6 +109,45 @@ module IndepthTimetable
 
       render :update do |page|
         page.replace_html "time_table", :partial => "indepth_timetable/student_timetable"
+      end
+    end
+
+    def update_teacher_tt_with_indepth
+      if params[:timetable_id].nil?
+        @current=Timetable.find(:first, :conditions => ["timetables.start_date <= ? AND timetables.end_date >= ?", @local_tzone_time.to_date, @local_tzone_time.to_date])
+      else
+        if params[:timetable_id]==""
+          render :update do |page|
+            page.replace_html "timetable_view", :text => ""
+          end
+          return
+        else
+          @current=Timetable.find(params[:timetable_id],:include => :timetable_entries)
+        end
+      end
+      @timetable_entries = Hash.new { |l, k| l[k] = Hash.new(&l.default_proc) }
+      @all_timetable_entries = @current.timetable_entries.all(:include=>[:employees,:entry],
+                                                              :conditions => ["ct.is_deleted = ? and b.is_active = ?",false,true],
+                                                              :joins => "LEFT OUTER JOIN batches b on timetable_entries.batch_id=b.id and b.is_active=1
+                 LEFT OUTER JOIN class_timings ct on ct.id=timetable_entries.class_timing_id and ct.is_deleted=0")
+      @all_teachers = @all_timetable_entries.collect { |x| x.employees }.flatten.uniq
+      @all_subjects = @all_timetable_entries.collect { |x| x.assigned_subjects([:batch]) }.flatten.uniq
+      @all_subjects.each do |sub|
+        unless sub.elective_group.nil?
+          elective_teachers = sub.elective_group.subjects.collect(&:employees).flatten
+          @all_teachers+=elective_teachers
+        end
+      end
+      @all_teachers.uniq!
+      if @all_teachers.present?
+        @employee = @all_teachers.first
+        employee_tt_builder
+      end
+      render :update do |page|
+        page.replace_html "timetable_view_flash", :text => ((@all_timetable_entries.present? and @mployee.present?) ? "" : (@all_timetable_entries.present? ? (@employee.present? ? "" : "<p class='flash-msg'>#{t('no_timetable_associated_employees_found')}</p>") : "<p class='flash-msg'>#{t('no_entries_found')}</p>" ))
+        page.replace_html "teachers_list_view", :partial => "teacher_list"
+        page.replace_html "teacher_timetable_view", :partial => "indepth_timetable/employee_timetable" if @employee.present?
+        page.replace_html "teacher_timetable_view", :text => "" unless @employee.present?
       end
     end
 

@@ -92,6 +92,31 @@
                                 <% unless @tte.entry_type == "Subject" %>
                                   <span class="elective_text"><%= t('elective') %></span>
                                   <span class="fright"><%=@tte.entry.subjects.active.count%></span>
+                                  <% if @tte.is_online? %>
+                                    <% i = 0 %>
+                                    <% if i < 2 %>
+                                      <% m_link = @tte.meeting_link.present? ? @tte.meeting_link.split(',') : '' %>
+                                      <% g_code = @tte.gclass_code.present? ? @tte.gclass_code.split(',') : '' %>
+                                      <% @tte.assigned_subjects.each do |es| %>
+                                        <div class="" style="max-width: 190px!important;font-size: 10px!important;">
+                                          <div class=""> <%= shorten_string(es.name.to_s, 30) %></div>
+                                          <div class="online " style="margin-bottom: 10px; font-size: 8px!important; ">
+                                            <% if @tte.is_online? %>
+                                              <% if g_code[i].present? %>
+                                                <label class="emp-line">Class code:<%= g_code[i] %></label><br>
+                                              <% end %>
+                                              <% if m_link[i].present? %>
+                                                <button style="min-width:150px;min-height:10px;  margin-left: 15px;;background-color: forestgreen; color: whitesmoke; cursor: pointer; border-radius: 12px; " onclick="window.open('<%= m_link[i]%>','_blank')">
+                                                  <b>Join Online Class</b></button>
+                                              <% end %>
+                                            <% end %>
+                                          </div>
+                                        </div>
+                                        <% i += 1 %>
+                                      <% end %>
+                                    <% end %>
+                                  <% end %>
+
                                 <% else %>
                                   <%if @tte.employees.present?%>
                                     <% teacher_count = @tte.employee_ids.uniq.count  %>
@@ -100,43 +125,71 @@
                                   <%else%>
                                     <%= t('no_teacher') %>
                                   <%end%>
+                                  <div class="online">
+                                    <% if @tte.is_online? %>
+                                      <% if @tte.meeting_id.present? %>
+                                        <label class="emp-line" style="margin-top: 3px">ID: <%= @tte.meeting_id %></label><br>
+                                      <% end %>
+                                      <% if @tte.meeting_passcode.present? %>
+                                        <label class="emp-line" style="margin-top: 3px">Pass:<%= @tte.meeting_passcode %></label><br>
+                                      <% end %>
+                                      <% if @tte.gclass_code.present? %>
+                                        <label class="emp-line" style="margin-top: 3px">Class code:<%= @tte.gclass_code %></label><br>
+                                      <% end %>
+                                      <% if @tte.meeting_link.present? %>
+                                        <button style="min-width:150px; min-height:30px; margin-top: 3px; margin-left: 15px;;background-color: forestgreen; color: whitesmoke; cursor: pointer; border-radius: 12px; " onclick="window.open('<%= @tte.meeting_link%>','_blank')">
+                                          <b>Join Online Class</b></button>
+                                      <% end %>
+                                    <% end %>
+                                  </div>
                                 <% end %>
                               <% end %>
                             </div>
-                            <div class="online">
-                              <% if @tte.is_online? %>
-                                <% if @tte.meeting_id.present? %>
-                                  <label class="emp-line" style="margin-top: 3px">ID: <%= @tte.meeting_id %></label><br>
-                                <% end %>
-                                <% if @tte.meeting_passcode.present? %>
-                                  <label class="emp-line" style="margin-top: 3px">Pass:<%= @tte.meeting_passcode %></label><br>
-                                <% end %>
-                                <% if @tte.gclass_code.present? %>
-                                  <label class="emp-line" style="margin-top: 3px">Class code:<%= @tte.gclass_code %></label><br>
-                                <% end %>
-                                <% if @tte.meeting_link.present? %>
-                                  <button style="min-width:150px; min-height:30px; margin-top: 3px; margin-left: 15px;;background-color: forestgreen; color: whitesmoke; cursor: pointer; border-radius: 12px; " onclick="window.open('<%= @tte.meeting_link%>','_blank')">
-                                    <b>Join Online Class</b></button>
-                                <% end %>
-                              <% end %>
-                            </div>
-                            <div class ="class_timing_tooltip" style="display:none">
+
+
+                            <div class ="class_timing_tooltip" style="display:none; background-color: lightblue!important;">
                               <span class="classtiming"><%="#{format_date(ct.start_time,:format=>:time)} - #{format_date(ct.end_time,:format=>:time)}"%></span>
                               <div class="subject1 ">
 
                                 <% unless @tte.entry_type == "Subject" %>
+                                  <% m_link = @tte.meeting_link.present? ? @tte.meeting_link.split(',') : '' %>
+                                  <% m_id = @tte.meeting_id.present? ? @tte.meeting_id.split(',') : '' %>
+                                  <% m_passcode = @tte.meeting_passcode.present? ? @tte.meeting_passcode.split(',') : '' %>
+                                  <% g_code = @tte.gclass_code.present? ? @tte.gclass_code.split(',') : '' %>
+                                  <% i = 0 %>
+
                                   <% @tte.entry.subjects.active.each do |es| %>
-                                    <div class="block">
+                                    <div class="block" style="background-color: ghostwhite!important; margin-top: 8px!important;">
                                       <div class="sub-line"> <%= "#{es.name.to_s} &#x200E;(#{es.code.to_s})&#x200E;" %></div>
                                       <% if es.employees.present? %>
                                         <% es.employees.each do |e| %>
-                                          <div class="emp-line">By <%="#{e.full_name} &#x200E;(#{e.employee_number})&#x200E;" %></div>
+                                          <div class="emp-line"><%= "#{e.full_name} &#x200E;(#{e.employee_number})&#x200E;" %></div>
                                         <% end %>
                                       <% else %>
                                         <div class="emp-line"><%= t('no_teacher') %></div>
                                       <% end %>
+                                      <div class="online " style="margin-bottom: 10px; ">
+                                        <% if @tte.is_online? %>
+                                          <% if m_id[i].present? %>
+                                            <label class="emp-line" style="margin-top: 3px">ID: <%= m_id[i] %></label><br>
+                                          <% end %>
+                                          <% if m_passcode[i].present? %>
+                                            <label class="emp-line" style="margin-top: 3px">Pass:<%= m_passcode[i] %></label><br>
+                                          <% end %>
+                                          <% if g_code[i].present? %>
+                                            <label class="emp-line" style="margin-top: 3px">Class code:<%= g_code[i] %></label><br>
+                                          <% end %>
+                                          <% if m_link[i].present? %>
+                                            <button style="min-width:150px;min-height:20px; margin-top: 3px; margin-left: 15px;;background-color: forestgreen; color: whitesmoke; cursor: pointer; border-radius: 12px; " onclick="window.open('<%= m_link[i]%>','_blank')">
+                                              <b>Join Online Class</b></button>
+                                          <% end %>
+                                        <% end %>
+                                      </div>
                                     </div>
+                                    <% i += 1 %>
                                   <% end %>
+
+
                                 <% else %>
                                   <div class="sub-line"><%= "#{@tte.assigned_name} &#x200E;(#{@tte.entry.code.to_s})&#x200E;"  %></div>
                                   <% if @tte.employee_ids.present? %>
@@ -146,25 +199,26 @@
                                   <% else %>
                                     <div class="emp-line"><%= t('no_teacher') %></div>
                                   <% end %>
+                                  <div class="online">
+                                    <% if @tte.is_online? %>
+                                      <% if @tte.meeting_id.present? %>
+                                        <label class="emp-line" style="margin-top: 3px">ID: <%= @tte.meeting_id %></label><br>
+                                      <% end %>
+                                      <% if @tte.meeting_passcode.present? %>
+                                        <label class="emp-line" style="margin-top: 3px">Pass:<%= @tte.meeting_passcode %></label><br>
+                                      <% end %>
+                                      <% if @tte.gclass_code.present? %>
+                                        <label class="emp-line" style="margin-top: 3px">Class code:<%= @tte.gclass_code %></label><br>
+                                      <% end %>
+                                      <% if @tte.meeting_link.present? %>
+                                        <button style="min-width:150px; min-height:30px; margin-top: 3px; margin-left: 15px;;background-color: forestgreen; color: whitesmoke; cursor: pointer; border-radius: 12px; " onclick="window.open('<%= @tte.meeting_link%>','_blank')">
+                                          <b>Join Online Class</b></button>
+                                      <% end %>
+                                    <% end %>
+                                  </div>
                                 <% end %>
                               </div>
-                              <div class="online">
-                                <% if @tte.is_online? %>
-                                  <% if @tte.meeting_id.present? %>
-                                    <label class="emp-line" style="margin-top: 3px">ID: <%= @tte.meeting_id %></label><br>
-                                  <% end %>
-                                  <% if @tte.meeting_passcode.present? %>
-                                    <label class="emp-line" style="margin-top: 3px">Pass:<%= @tte.meeting_passcode %></label><br>
-                                  <% end %>
-                                  <% if @tte.gclass_code.present? %>
-                                    <label class="emp-line" style="margin-top: 3px">Class code:<%= @tte.gclass_code %></label><br>
-                                  <% end %>
-                                  <% if @tte.meeting_link.present? %>
-                                    <button style="min-width:150px; min-height:30px; margin-top: 3px; margin-left: 15px;;background-color: forestgreen; color: whitesmoke; cursor: pointer; border-radius: 12px; " onclick="window.open('<%= @tte.meeting_link%>','_blank')">
-                                      <b>Join Online Class</b></button>
-                                  <% end %>
-                                <% end %>
-                              </div>
+
                             </div>
                           <% else %>
                             <span id="blank_timings"><%="#{format_date(ct.start_time,:format=>:time)} - #{format_date(ct.end_time,:format=>:time)}"%></span>
