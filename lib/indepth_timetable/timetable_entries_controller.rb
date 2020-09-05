@@ -95,7 +95,7 @@ module IndepthTimetable
     def update_multiple_timetable_entries2_with_indepth
       @is_online = params[:is_online]
       @meeting_link = params[:meeting_link]
-      @meeting_link.present? ? @meeting_link.sub!('@@','?') : ''
+      @meeting_link.present? ? @meeting_link.gsub!('@@','?') : ''
       @meeting_id = params[:meeting_id]
       @meeting_passcode = params[:meeting_passcode]
       @timetable=Timetable.find(params[:timetable_id])
@@ -248,7 +248,7 @@ module IndepthTimetable
     def tt_entry_update2_with_indepth
       @is_online = params[:is_online]
       @meeting_link = params[:meeting_link]
-      @meeting_link.present? ? @meeting_link.sub!('@@','?') : ''
+      @meeting_link.present? ? @meeting_link.gsub!('@@','?') : ''
       @meeting_id = params[:meeting_id]
       @meeting_passcode = params[:meeting_passcode]
       @gclass_code = params[:gclass_code]
