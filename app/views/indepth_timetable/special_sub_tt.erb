@@ -1,0 +1,213 @@
+<%-# Fedena
+   #Copyright 2010 Foradian Technologies Private Limited
+   #
+   #This product includes software developed at
+   #Project Fedena - http://www.projectfedena.org/
+   #
+   #Licensed under the Apache License, Version 2.0 (the "License");
+   #you may not use this file except in compliance with the License.
+   #You may obtain a copy of the License at
+   #
+   #  http://www.apache.org/licenses/LICENSE-2.0
+   #
+   #Unless required by applicable law or agreed to in writing,
+   #software distributed under the License is distributed on an
+   #"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+   #KIND, either express or implied.  See the License for the
+   #specific language governing permissions and limitations
+   #under the License. -%>
+<style>
+    #spl_timetable {
+        font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    #spl_timetable td, #spl_timetable th {
+        border: 1px solid darkgrey;
+        padding: 8px;
+    }
+
+    #spl_timetable button{
+        background-color: green;
+        color: whitesmoke;
+        height: 30px;
+        border-radius: 30px;
+        padding: 5px 5px 5px 4px;
+        font-weight: bolder;
+        width: 100%;
+    }
+
+    #spl_timetable b{
+        text-align: center;
+    }
+
+    #spl_timetable tr:nth-child(even){background-color: #f2f2f2;}
+
+    #spl_timetable tr:hover {background-color: #ddd;}
+
+    #spl_timetable th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        background-color: #4CAF50;
+        color: white;
+        text-align: center!important;
+    }
+</style>
+
+
+<div id="content-header">
+  <%= show_header_icon %>
+  <h1><%= t('special_timetable_text') %></h1>
+  <div class='header-sep'>|</div>
+  <div class='sub-header'><%= t('timetable_view') %></div>
+  <div id="inner-tab-menu">
+    <ul>
+      <li class="themed_bg themed-dark-hover-background"><%= link_to "#{t('activities')}", :controller => 'student', :action => 'activities' ,:id => @student.id%></li>
+    </ul>
+  </div>
+</div>
+<div id="page-yield">
+  <div class="bread_crumb">
+    <%= make_breadcrumb %>
+    <%= render_breadcrumbs  %>
+  </div>
+  <% unless flash[:notice].nil? %>
+    <p class="flash-msg"> <%= flash[:notice] %> </p>
+  <% end %>
+  <table id="spl_timetable" style='border-collapse:collapse; border: 2px solid black' align="center">
+    <thead align="center">
+    <tr class="table-head" align="center" style="font-weight: bold" >
+      <th style="font-weight: bold"> DAYS</th>
+      <th> PERIOD <br> 7:45-8:35 <br> 1</th>
+      <th> PERIOD <br> 7:45-8:35 <br> 2</th>
+      <th> PERIOD <br> 7:45-8:35 <br> 3</th>
+      <th> PERIOD <br> 7:45-8:35 <br> 4</th>
+      <th> PERIOD <br> 7:45-8:35 <br> 5</th>
+      <th> PERIOD <br> 7:45-8:35 <br> 6</th>
+    </tr>
+    </thead>
+    <tbody align="">
+    <tr class="table-body">
+      <td style="font-weight: bold">SUNDAY</td>
+      <td><b>Gr. 3D</b><br> Arabic Lang. Non Arabs <br> Ms. Rania <br> Class code:ijpqzic <br> Meeting ID: 606 217 6708 <br>
+        <button onclick=" window.open('https://zoom.us/j/6062176708?pwd=Ylk1dU9ENmtEMjNEWENHNVR3RUtnUT09','_blank')" >JOIN CLASS</button> </td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td><b>Gr. 3D</b>  <br> Islamic Studies for Non Arabs <br> Ms. Hasiba <br>
+        Class code
+        slanz4x <br>
+        Meeting ID:
+        3740255115 <br>
+        <button onclick=" window.open('https://zoom.us/j/3740255115','_blank')" >JOIN CLASS</button>
+
+      </td>
+    </tr>
+
+    <tr class="table-body" >
+      <td style="font-weight: bold">MONDAY</td>
+      <td><b>Gr. 6B3</b> <br> Arabic Language for Non Arabs <br> Ms. Rania <br>
+        Class code:
+        o32ggpy <br>
+        Meeting ID:
+        6062176708 <br>
+        <button onclick=" window.open('https://zoom.us/j/6062176708?pwd=Ylk1dU9ENmtEMjNEWENHNVR3RUtnUT09','_blank')" >JOIN CLASS</button>
+
+
+      </td>
+      <td style="font-weight: bold"></td>
+      <td><b>Gr. 3D</b> <br> Social Studies for Non Arabs by Ms. Hasiba <br>
+        Class code
+        36dmijp <br>
+        Meeting ID:
+        3740255115 <br>
+        <button onclick=" window.open('https://zoom.us/j/3740255115','_blank')" >JOIN CLASS</button>
+      </td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+
+    <tr class="table-body">
+      <td style="font-weight: bold">TUESDAY</td>
+      <td></td>
+      <td><b>Gr. 3D</b> <br> Arabic Language for Non Arabs by Ms. Rania <br>
+        Class code: ijpqzic <br>
+        Meeting ID:
+        6062176708 <br>
+        <button onclick=" window.open('https://zoom.us/j/6062176708?pwd=Ylk1dU9ENmtEMjNEWENHNVR3RUtnUT09')" >JOIN CLASS</button>
+      </td>
+
+      <td></td>
+
+      <td><b>Gr. 3D</b><br> Islamic Studies for Non Arabs by Ms. Hasiba <br>
+        Class code: slanz4x <br>
+        Meeting ID:
+        3740255115 <br>
+        <button onclick=" window.open('https://zoom.us/j/3740255115')" >JOIN CLASS</button>
+      </td>
+
+      <td><b>Gr. 6B3</b> <br> Social St. for Non Arabs by Ms. Hasiba <br>
+        Class code: rqxrp7m <br>
+        Meeting ID:
+        3740255115 <br>
+        <button onclick=" window.open('https://zoom.us/j/3740255115')" >JOIN CLASS</button>
+
+      </td>
+      <td><b>Gr.6B3</b> <br> Islamic St. for Non Arabs by Ms. Hasiba <br>
+        Class code: 7ouotna <br>
+        Meeting ID:
+        3740255115 <br>
+        <button onclick=" window.open('https://zoom.us/j/3740255115')" >JOIN CLASS</button>
+      </td>
+    </tr>
+
+    <tr class="table-body">
+      <td style="font-weight: bold">WEDNESDAY</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+
+      <td><b>Gr.6B3</b> <br> Arabic Language for Non Arabs by Ms. Rania <br>
+        Class code:o32ggpy <br>
+        Meeting ID:
+        6062176708 <br>
+        <button onclick=" window.open('https://zoom.us/j/6062176708?pwd=Ylk1dU9ENmtEMjNEWENHNVR3RUtnUT09')" >JOIN CLASS</button>
+      </td>
+
+      <td></td>
+
+    </tr>
+
+    <tr class="table-body">
+      <td style="font-weight: bold">THURSDAY</td>
+      <td><b>Gr. 6B3</b> <br> Arabic Language for Non Arabs by Ms. Rania <br>
+        Class code: o32ggpy <br>
+        Meeting ID:
+        6062176708 <br>
+        <button onclick=" window.open('https://zoom.us/j/6062176708?pwd=Ylk1dU9ENmtEMjNEWENHNVR3RUtnUT09')" >JOIN CLASS</button>
+      </td>
+
+      <td></td>
+      <td><b>Gr.3D</b> <br> Arabic Language for Non Arabs by Ms. Rania <br>
+        Class code: ijpqzic <br>
+        Meeting ID:
+        6062176708 <br>
+        <button onclick=" window.open('https://zoom.us/j/6062176708?pwd=Ylk1dU9ENmtEMjNEWENHNVR3RUtnUT09')" >JOIN CLASS</button>
+      </td>
+      <td></td>
+      <td><b>6B3</b> <br> Islamic St. for Non Arabs by Ms. Hasiba <br>
+        Class code: 7ouotna <br>
+        Meeting ID:
+        3740255115 <br>
+        <button onclick=" window.open('https://zoom.us/j/3740255115')" >JOIN CLASS</button>
+      </td>
+      <td></td>
+    </tr>
+    </tbody>
+  </table>
+
+</div>

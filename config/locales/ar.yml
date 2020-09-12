@@ -3,3 +3,4 @@ ar: # locale
     meeting_id: 'فصل عبر الإنترنت'
     pass_code: 'كلمة مرور الاجتماع'
     google_class_code: 'كود جوجل'
+    special_timetable_text: 'جدول الموضوعات الخاصة'

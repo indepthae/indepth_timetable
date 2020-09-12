@@ -151,7 +151,9 @@ module IndepthTimetable
       end
     end
 
-
+    def special_sub_tt
+      render 'indepth_timetable/special_sub_tt'
+    end
 
 
 
