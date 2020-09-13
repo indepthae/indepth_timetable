@@ -4,6 +4,7 @@ module IndepthTimetable
     def self.included(base)
       base.instance_eval do
 
+        alias_method_chain :index, :indepth
         alias_method_chain :update_timetable_view, :indepth
         alias_method_chain :timetable_pdf, :indepth
         alias_method_chain :update_student_tt, :indepth
@@ -11,6 +12,11 @@ module IndepthTimetable
         alias_method_chain :update_teacher_tt, :indepth
 
       end
+    end
+
+    def index_with_indepth
+      @user = current_user
+      render 'indepth_timetable/index'
     end
 
     def update_timetable_view_with_indepth
@@ -47,6 +53,7 @@ module IndepthTimetable
     end
 
     def student_view_with_indepth
+
       @student = Student.find(params[:id])
       @batch=@student.batch
       if @batch.weekday_set_id.present?
@@ -152,7 +159,12 @@ module IndepthTimetable
     end
 
     def special_sub_tt
+      @student = Student.find(params[:id])
       render 'indepth_timetable/special_sub_tt'
+    end
+
+    def special_sub_tt_employee
+      render 'indepth_timetable/special_sub_tt_employee'
     end
 
 

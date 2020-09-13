@@ -4,3 +4,5 @@ en: # locale
   pass_code: 'Pass Code'
   google_class_code: 'Google Classroom code'
   special_timetable_text: 'Special Subjects Timetable'
+  view_spl_timetable: 'View Special Subjects Timetable'
+  view_the_special_timetable_for_a_class: 'View special timetables for the classes'

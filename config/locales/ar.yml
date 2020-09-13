@@ -4,3 +4,5 @@ ar: # locale
     pass_code: 'كلمة مرور الاجتماع'
     google_class_code: 'كود جوجل'
     special_timetable_text: 'جدول الموضوعات الخاصة'
+    view_spl_timetable: 'جدول الموضوعات الخاصة'
+    view_the_special_timetable_for_a_class: 'عرض جدول الموضوعات الخاصة'

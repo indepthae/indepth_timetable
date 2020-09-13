@@ -49,13 +49,7 @@
         min-height: 1000px;
     }
 
-    #box {
-        margin: 0px auto;
-        width: 1000px;
-        margin-bottom: 30px;
-        border: 1px solid #999999;
-        background-color: #e5e5e5;
-    }
+
 
     #spl_timetable  {
         font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
@@ -130,19 +124,18 @@
   <% unless flash[:notice].nil? %>
     <p class="flash-msg"> <%= flash[:notice] %> </p>
   <% end %>
-<!--  <h1><%#= @student.course.id %></h1>-->
+
+  <!--  <h1><%#= @student.course.id %></h1>-->
   <div id="timetable">
-    <div id="box">
+    <div id="">
+      <h3 align="center">Grade 3 - 6  </h3>
       <div id="table-viewer">
-        <%if  @student.course.id.to_i >= 3 &&  @student.course.id.to_i <= 6 %>
         <%= render :partial => 'indepth_timetable/spl_tt_3_6' %>
-        <% elsif @student.course.id.to_i >= 7 &&  @student.course.id.to_i <= 12 %>
+      </div>
+      <br> <br>
+      <h3 align="center">Grade 7 - 12 </h3>
+      <div id="table-viewer">
           <%= render :partial => 'indepth_timetable/spl_tt_7_12' %>
-       <% else %>
-        <h1> Sorry, No Special Subjects Available for Your Current Grade</h1>
-        <%end %>
-
-
       </div>
     </div>
   </div>

@@ -24,7 +24,9 @@
   <div class='sub-header'><%= t('timetable_view') %></div>
   <div id="inner-tab-menu">
     <ul>
+      <% if (@student.course.id.to_i >= 3 &&  @student.course.id.to_i <= 6) || (@student.course.id.to_i >= 7 &&  @student.course.id.to_i <= 12)  %>
       <li class="themed_bg themed-dark-hover-background"><%= link_to "#{t('special_timetable_text')}", :controller => 'timetable', :action => 'special_sub_tt' ,:id => @student.id%></li>
+      <%end %>
       <li class="themed_bg themed-dark-hover-background"><%= link_to "#{t('activities')}", :controller => 'student', :action => 'activities' ,:id => @student.id%></li>
 
     </ul>
