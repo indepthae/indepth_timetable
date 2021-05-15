@@ -96,7 +96,7 @@
                                   <% if @tte.employees.present? %>
                                    By <%= timetable_entry_employee_names(@tte.employees).first %>
                                   <%else%>
-                                    <%= t('no_teacher') %>
+                                    <%#= t('no_teacher') %>
                                   <%end%>
                                   <div class="online">
                                     <% if @tte.is_online? %>
@@ -138,7 +138,7 @@
                                             <div class="emp-line"><%= "#{e.full_name} &#x200E;(#{e.employee_number})&#x200E;" %></div>
                                           <% end %>
                                         <% else %>
-                                          <div class="emp-line"><%= t('no_teacher') %></div>
+<!--                                          <div class="emp-line"><%#= t('no_teacher') %></div>-->
                                         <% end %>
                                         <div class="online " style="margin-bottom: 10px; ">
                                           <% if @tte.is_online? %>
@@ -170,7 +170,7 @@
                                         <div class="emp-line"><%= "#{tte_employee.full_name} &#x200E;(#{tte_employee.employee_number})&#x200E;" %></div>
                                       <% end %>
                                     <%else%>
-                                      <div class="emp-line"><%= t('no_teacher') %></div>
+<!--                                      <div class="emp-line"><%#= t('no_teacher') %></div>-->
                                     <%end%>
                                     <div class="online">
                                       <% if @tte.is_online? %>

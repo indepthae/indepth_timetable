@@ -123,7 +123,7 @@
                                     By <%= shorten_string(@tte.employees.first.first_name,15)%>
                                     <%= " + #{(teacher_count-1)}" if teacher_count > 1 %>
                                   <%else%>
-                                    <%= t('no_teacher') %>
+                                    <%#= t('no_teacher') %>
                                   <%end%>
                                   <div class="online">
                                     <% if @tte.is_online? %>
@@ -166,7 +166,7 @@
                                           <div class="emp-line"><%= "#{e.full_name} &#x200E;(#{e.employee_number})&#x200E;" %></div>
                                         <% end %>
                                       <% else %>
-                                        <div class="emp-line"><%= t('no_teacher') %></div>
+<!--                                        <div class="emp-line"><%#= t('no_teacher') %></div>-->
                                       <% end %>
                                       <div class="online " style="margin-bottom: 10px; ">
                                         <% if @tte.is_online? %>
@@ -197,7 +197,7 @@
                                       <div class="emp-line">By <%="#{e.full_name} &#x200E;(#{e.employee_number})&#x200E;" %></div>
                                     <% end %>
                                   <% else %>
-                                    <div class="emp-line"><%= t('no_teacher') %></div>
+<!--                                    <div class="emp-line"><%#= t('no_teacher') %></div>-->
                                   <% end %>
                                   <div class="online">
                                     <% if @tte.is_online? %>
